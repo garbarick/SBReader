@@ -2,6 +2,10 @@
 <resources>
 
     <string name="app_name">SBReader</string>
-    <string name="hello_world">Hello world!</string>
+    
+	<string name="open_file">Open File</string>
+	<string name="close_file">Close File</string>
+	<string name="choose_file">Choose File</string>
+	<string name="open_page">Open Page</string>
 
 </resources>

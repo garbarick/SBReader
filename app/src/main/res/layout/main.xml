@@ -1,11 +1,65 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center">
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
-    <TextView
-        android:text="@string/hello_world"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+	<LinearLayout
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:orientation="vertical"
+		android:weightSum="1"
+		android:id="@+id/page">
 
-</LinearLayout>
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:id="@+id/text"/>
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:id="@+id/state"
+			android:gravity="right"/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:orientation="vertical"
+		android:weightSum="2"
+		android:id="@+id/buttons">
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:id="@+id/previous_page"
+			android:layout_weight="1"
+			android:background="@android:color/transparent"/>
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:id="@+id/next_page"
+			android:layout_weight="1"
+			android:background="@android:color/transparent"/>
+
+	</LinearLayout>
+
+	<ProgressBar
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:layout_centerInParent="true"
+		android:id="@+id/progress"/>
+
+	<ProgressBar
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:id="@+id/load"
+		android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>
+
