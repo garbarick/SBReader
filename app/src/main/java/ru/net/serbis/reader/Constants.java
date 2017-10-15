@@ -12,6 +12,7 @@ public interface Constants
 		}
 	);
 	
-	String UTF_8 = "UTF-8";
-	String WINDOWS_1251 = "WINDOWS-1251";
+	String WINDOWS_1251 = "windows-1251";
+	String SYSTEM_FONTS = "/system/fonts";
+	String FONT_EXT = ".ttf";
 }

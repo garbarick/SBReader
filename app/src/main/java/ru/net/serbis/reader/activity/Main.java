@@ -5,6 +5,7 @@ import android.os.*;
 import android.view.*;
 import android.widget.*;
 import ru.net.serbis.reader.*;
+import ru.net.serbis.reader.dialog.*;
 import ru.net.serbis.reader.load.*;
 import ru.net.serbis.reader.task.*;
 
@@ -12,7 +13,7 @@ public class Main extends Activity
 {
 	private TextView text;
 	private TextView state;
-	private Loader loader = new Loader(this);
+	private Loader loader;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -21,13 +22,14 @@ public class Main extends Activity
         setContentView(R.layout.main);
 		
 		text = UIUtils.findView(this, R.id.text);
-		
 		state = UIUtils.findView(this, R.id.state);
 		initNextPage();
 		initPreviousPage();
 		
 		UIUtils.hideItems(this, R.id.progress);
 		UIUtils.hideItems(this, R.id.load);
+		
+		loader = new Loader(this);
     }
 	
 	@Override
@@ -41,7 +43,12 @@ public class Main extends Activity
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
+		menu.findItem(R.id.open_file).setEnabled(!loader.isLoading());
+		menu.findItem(R.id.close_file).setEnabled(loader.isReady() && !loader.isLoading());
 		menu.findItem(R.id.open_page).setEnabled(loader.isReady());
+		menu.findItem(R.id.charser).setEnabled(loader.isReady() && !loader.isLoading());
+		menu.findItem(R.id.font_name).setEnabled(loader.isReady() && !loader.isLoading());
+		
 		return true;
 	}
 	
@@ -64,13 +71,19 @@ public class Main extends Activity
 				return true;
 
 			case R.id.close_file:
-				loader.clear();
-				text.setText(null);
-				state.setText(null);
+				closeFile();
 				return true;
 				
 			case R.id.open_page:
 				openPage();
+				return true;
+				
+			case R.id.charser:
+				selectCharset();
+				return true;
+			
+			case R.id.font_name:
+				selectFont();
 				return true;
 		}
         return false;
@@ -88,6 +101,31 @@ public class Main extends Activity
 		};
 	}
 	
+	private void closeFile()
+	{
+		loader.clear();
+		text.setText(null);
+		state.setText(null);
+	}
+	
+	private void previousPage()
+	{
+		if (loader.isReady())
+		{
+			text.setText(loader.getPrevious());
+			state.setText(loader.getState());
+		}
+	}
+	
+	private void nextPage()
+	{
+		if (loader.isReady())
+		{
+			text.setText(loader.getNext());
+			state.setText(loader.getState());
+		}
+	}
+	
 	private void initNextPage()
 	{
 		Button button = UIUtils.findView(this, R.id.next_page);
@@ -96,11 +134,7 @@ public class Main extends Activity
 			{
 				public void onClick(View view)
 				{
-					if (loader.isReady())
-					{
-						text.setText(loader.getNext());
-						state.setText(loader.getState());
-					}
+					nextPage();
 				}
 			}
 		);
@@ -114,11 +148,7 @@ public class Main extends Activity
 			{
 				public void onClick(View view)
 				{
-					if (loader.isReady())
-					{
-						text.setText(loader.getPrevious());
-						state.setText(loader.getState());
-					}
+					previousPage();
 				}
 			}
 		);
@@ -136,6 +166,44 @@ public class Main extends Activity
 					text.setText(loader.getPage());
 					state.setText(loader.getState());
 				}
+			}
+		};
+	}
+	
+	@Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+	{
+		switch(keyCode)
+		{
+			case KeyEvent.KEYCODE_VOLUME_DOWN:
+				nextPage();
+				return true;
+			
+			case KeyEvent.KEYCODE_VOLUME_UP:
+				previousPage();
+				return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+	
+	private void selectCharset()
+	{
+		new Charsets(this, loader.getBook().getCharset())
+		{
+			public void onOk(String charset)
+			{
+				loader.getBook().setCharset(charset);
+			}
+		};
+	}
+	
+	private void selectFont()
+	{
+		new FontNames(this, loader.getBook().getFontName())
+		{
+			public void onOk(String fontName)
+			{
+				loader.getBook().setFontName(fontName);
 			}
 		};
 	}

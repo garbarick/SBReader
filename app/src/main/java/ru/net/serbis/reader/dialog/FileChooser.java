@@ -1,4 +1,4 @@
-package ru.net.serbis.reader.activity;
+package ru.net.serbis.reader.dialog;
 
 import android.app.*;
 import android.content.*;

@@ -1,4 +1,4 @@
-package ru.net.serbis.reader.load;
+package ru.net.serbis.reader.data;
 
 import java.util.*;
 

@@ -23,7 +23,7 @@ public class LoadTask extends AsyncTask<String, Void, Void>
 	protected Void doInBackground(String... params)
 	{
 		TextView text = UIUtils.findView(activity, R.id.text);
-		loader.load(params[0], Constants.WINDOWS_1251, text.getWidth(), text.getHeight(), this);
+		loader.load(params[0], text.getWidth(), text.getHeight(), this);
 		return null;
 	}
 

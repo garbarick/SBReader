@@ -40,26 +40,24 @@ public class LoaderState
 		return position;
 	}
 	
-	public LoaderState appendData(Object object)
+	public void appendData(Object object)
 	{
 		data.append(object);
-		return this;
 	}
 	
-	public LoaderState appendEndToData()
+	public void appendEndToData()
 	{
 		data.append(end);
-		return this;
 	}
 	
-	public void setEndtToData()
+	public void clearData()
 	{
-		data = end;
+		data.setLength(0);
 	}
 	
 	public void clearEnd()
 	{
-		end = new StringBuilder();
+		end.setLength(0);
 	}
 	
 	public void initPosition()
