@@ -1,9 +1,11 @@
 package ru.net.serbis.reader.load;
 
 import android.content.*;
+import android.util.*;
 import android.view.*;
 import android.widget.*;
 import java.util.regex.*;
+import ru.net.serbis.reader.data.*;
 
 public class LoaderState
 {
@@ -17,10 +19,13 @@ public class LoaderState
 	private int width;
 	private int height;
 	
-	public LoaderState(Context context, int width, int height)
+	public LoaderState(Context context, Book book, int width, int height)
 	{
-		this.textView = new TextView(context);
-		this.textView.setLayoutParams(new ViewGroup.LayoutParams(width, height));
+		textView = new TextView(context);
+		textView.setLayoutParams(new ViewGroup.LayoutParams(width, height));
+		textView.setTypeface(new Font(book.getFontName()).getTypeface());
+		textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, book.getFontSize());
+		
 		this.width = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
 		this.height = height;
 	}

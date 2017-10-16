@@ -1,4 +1,6 @@
 package ru.net.serbis.reader;
+
+import android.graphics.*;
 import java.util.*;
 
 public interface Constants
@@ -15,4 +17,17 @@ public interface Constants
 	String WINDOWS_1251 = "windows-1251";
 	String SYSTEM_FONTS = "/system/fonts";
 	String FONT_EXT = ".ttf";
+	
+	Map<String, Typeface> DEFAULTS = new LinkedHashMap<String, Typeface>()
+	{
+		{
+			put("Default", Typeface.DEFAULT);
+			put("Monospace", Typeface.MONOSPACE);
+			put("Sans Serif", Typeface.SANS_SERIF);
+			put("Serif", Typeface.SERIF);
+		}
+	};
+	
+	int LOAD = 0;
+	int RELOAD = 1;
 }

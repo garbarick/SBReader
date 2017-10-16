@@ -21,8 +21,12 @@ public class Book
 	public Book(Context context)
 	{
 		setCharset(Constants.WINDOWS_1251);
+		
 		TextView text = new TextView(context);
 		setFontName(new Font(text.getTypeface()).getName());
+		
+		int size = (int) (text.getTextSize() / context.getResources().getDisplayMetrics().scaledDensity);
+		setFontSize(size);
 	}
 
 	public void setId(long id)

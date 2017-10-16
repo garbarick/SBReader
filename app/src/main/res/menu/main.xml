@@ -15,5 +15,8 @@
 	<item
         android:id="@+id/font_name"
         android:title="@string/font_name"/>
+	<item
+        android:id="@+id/font_size"
+        android:title="@string/font_size"/>
 	
 </menu>

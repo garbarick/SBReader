@@ -11,9 +11,8 @@ import ru.net.serbis.reader.task.*;
 
 public class Main extends Activity 
 {
-	private TextView text;
-	private TextView state;
 	private Loader loader;
+	private LoadTask task;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -21,16 +20,24 @@ public class Main extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 		
-		text = UIUtils.findView(this, R.id.text);
-		state = UIUtils.findView(this, R.id.state);
 		initNextPage();
 		initPreviousPage();
-		
-		UIUtils.hideItems(this, R.id.progress);
-		UIUtils.hideItems(this, R.id.load);
+		cancel();
 		
 		loader = new Loader(this);
     }
+	
+	private void cancel()
+	{
+		if (task != null)
+		{
+			task.cancel(false);
+		}
+		
+		UIUtils.hideItems(this, R.id.progress);
+		UIUtils.hideItems(this, R.id.load);
+		UIUtils.showItems(this, R.id.buttons);
+	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -44,10 +51,11 @@ public class Main extends Activity
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
 		menu.findItem(R.id.open_file).setEnabled(!loader.isLoading());
-		menu.findItem(R.id.close_file).setEnabled(loader.isReady() && !loader.isLoading());
+		menu.findItem(R.id.close_file).setEnabled(loader.isReady());
 		menu.findItem(R.id.open_page).setEnabled(loader.isReady());
-		menu.findItem(R.id.charser).setEnabled(loader.isReady() && !loader.isLoading());
-		menu.findItem(R.id.font_name).setEnabled(loader.isReady() && !loader.isLoading());
+		menu.findItem(R.id.charser).setEnabled(loader.isReady());
+		menu.findItem(R.id.font_name).setEnabled(loader.isReady());
+		menu.findItem(R.id.font_size).setEnabled(loader.isReady());
 		
 		return true;
 	}
@@ -71,7 +79,8 @@ public class Main extends Activity
 				return true;
 
 			case R.id.close_file:
-				closeFile();
+				cancel();
+				UIUtils.closeFile(this, loader);
 				return true;
 				
 			case R.id.open_page:
@@ -83,7 +92,11 @@ public class Main extends Activity
 				return true;
 			
 			case R.id.font_name:
-				selectFont();
+				selectFontName();
+				return true;
+				
+			case R.id.font_size:
+				selectFontSize();
 				return true;
 		}
         return false;
@@ -91,29 +104,28 @@ public class Main extends Activity
 	
 	private void openFile()
 	{
+		TextView text = UIUtils.getText(this);
+		loader.setWidth(text.getWidth());
+		loader.setHeight(text.getHeight());
+		
 		new FileChooser(this, R.string.choose_file, false)
 		{
 			public void onChoose(String path)
 			{
-				text.setText(null);
-				new LoadTask(Main.this, loader).execute(path);
+				loader.setPath(path);
+				cancel();
+				task = new LoadTask(Main.this, loader, Constants.LOAD);
+				task.execute();
 			}
 		};
-	}
-	
-	private void closeFile()
-	{
-		loader.clear();
-		text.setText(null);
-		state.setText(null);
 	}
 	
 	private void previousPage()
 	{
 		if (loader.isReady())
 		{
-			text.setText(loader.getPrevious());
-			state.setText(loader.getState());
+			loader.previous();
+			UIUtils.openPage(this, loader);
 		}
 	}
 	
@@ -121,8 +133,8 @@ public class Main extends Activity
 	{
 		if (loader.isReady())
 		{
-			text.setText(loader.getNext());
-			state.setText(loader.getState());
+			loader.next();
+			UIUtils.openPage(this, loader);
 		}
 	}
 	
@@ -163,8 +175,7 @@ public class Main extends Activity
 				if (page != loader.getPageNum())
 				{
 					loader.setPageNum(page);
-					text.setText(loader.getPage());
-					state.setText(loader.getState());
+					UIUtils.openPage(Main.this, loader);
 				}
 			}
 		};
@@ -186,6 +197,13 @@ public class Main extends Activity
         return super.onKeyDown(keyCode, event);
     }
 	
+	private void reload()
+	{
+		cancel();
+		task = new LoadTask(Main.this, loader, Constants.RELOAD);
+		task.execute();
+	}
+	
 	private void selectCharset()
 	{
 		new Charsets(this, loader.getBook().getCharset())
@@ -193,17 +211,31 @@ public class Main extends Activity
 			public void onOk(String charset)
 			{
 				loader.getBook().setCharset(charset);
+				reload();
 			}
 		};
 	}
 	
-	private void selectFont()
+	private void selectFontName()
 	{
 		new FontNames(this, loader.getBook().getFontName())
 		{
 			public void onOk(String fontName)
 			{
 				loader.getBook().setFontName(fontName);
+				reload();
+			}
+		};
+	}
+	
+	private void selectFontSize()
+	{
+		new FontSizes(this, loader.getBook().getFontSize())
+		{
+			public void onOk(int fontSize)
+			{
+				loader.getBook().setFontSize(fontSize);
+				reload();
 			}
 		};
 	}

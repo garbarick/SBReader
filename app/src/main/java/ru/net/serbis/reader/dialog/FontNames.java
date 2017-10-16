@@ -4,8 +4,6 @@ import android.content.*;
 import java.io.*;
 import java.util.*;
 import ru.net.serbis.reader.*;
-import android.graphics.*;
-import ru.net.serbis.reader.data.*;
 
 public abstract class FontNames extends ComboDialog
 {
@@ -21,7 +19,7 @@ public abstract class FontNames extends ComboDialog
 	private static List<String> getFontNames()
 	{
 		final List<String> result = new ArrayList<String>();
-		result.addAll(Font.DEFAULTS.keySet());
+		result.addAll(Constants.DEFAULTS.keySet());
 
 		new File(Constants.SYSTEM_FONTS).listFiles(
 			new FileFilter()

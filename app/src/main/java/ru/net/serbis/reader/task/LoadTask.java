@@ -2,28 +2,35 @@ package ru.net.serbis.reader.task;
 
 import android.app.*;
 import android.os.*;
-import android.widget.*;
 import ru.net.serbis.reader.*;
 import ru.net.serbis.reader.activity.*;
 import ru.net.serbis.reader.load.*;
 
-public class LoadTask extends AsyncTask<String, Void, Void>
+public class LoadTask extends AsyncTask<Void, Void, Void>
 {
 	private Activity activity;
 	private Loader loader;
 	private boolean firstOpened;
+	private int type;
 
-	public LoadTask(Activity activity, Loader loader)
+	public LoadTask(Activity activity, Loader loader, int type)
 	{
 		this.activity = activity;
 		this.loader = loader;
+		this.type = type;
 	}
 	
 	@Override
-	protected Void doInBackground(String... params)
+	protected Void doInBackground(Void... params)
 	{
-		TextView text = UIUtils.findView(activity, R.id.text);
-		loader.load(params[0], text.getWidth(), text.getHeight(), this);
+		if (Constants.LOAD == type)
+		{
+			loader.load(this);
+		}
+		else if (Constants.RELOAD == type)
+		{
+			loader.collectPages(this);
+		}
 		return null;
 	}
 
@@ -40,14 +47,14 @@ public class LoadTask extends AsyncTask<String, Void, Void>
 	{
 		openFirst();
 		UIUtils.hideItems(activity, R.id.load);
+		UIUtils.updateState(activity, loader);
 	}
 
 	@Override
 	protected void onProgressUpdate(Void... values)
 	{
-		TextView state = UIUtils.findView(activity, R.id.state);
-		state.setText(loader.getState());
-		if (loader.getPageCount() == 1)
+		UIUtils.updateState(activity, loader);
+		if (loader.getPageCount() == loader.getPageNum())
 		{
 			openFirst();
 		}
@@ -68,9 +75,6 @@ public class LoadTask extends AsyncTask<String, Void, Void>
 		
 		UIUtils.hideItems(activity, R.id.progress);
 		UIUtils.showItems(activity, R.id.buttons);
-
-		TextView text = UIUtils.findView(activity, R.id.text);
-		text.setText(loader.getPage());
+		UIUtils.openPage(activity, loader);
 	}
 }
-

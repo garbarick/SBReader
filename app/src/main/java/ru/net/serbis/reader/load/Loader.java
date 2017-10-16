@@ -18,11 +18,28 @@ public class Loader
 	protected DBHelper db;
 	protected boolean loading;
 	protected Book book;
+	protected int width;
+	protected int height;
 
 	public Loader(Context context)
 	{
 		this.context = context;
 		db = new DBHelper(context);
+	}
+
+	public void setWidth(int width)
+	{
+		this.width = width;
+	}
+
+	public void setHeight(int height)
+	{
+		this.height = height;
+	}
+
+	public void setPath(String path)
+	{
+		this.path = path;
 	}
 	
 	public boolean isLoading()
@@ -37,27 +54,26 @@ public class Loader
 		book = null;
 	}
 
-	public void load(String path, int width, int height, LoadTask task)
+	public void load(LoadTask task)
 	{
 		loading = true;
-		clear();
-		this.path = path;
+		pager.clear();
 		
 		File file = new File(path);
 		book = db.getBook(file);
 		if (book != null)
 		{
-			collectPages(file, task);
+			collectPagesFromDB(file, task);
 		}
 		else
 		{
 			initBook();
-			collectPages(file, width, height, task);
+			collectPages(file, task);
 		}
 		loading = false;
 	}
 	
-	private void collectPages(File file, LoadTask task)
+	private void collectPagesFromDB(File file, LoadTask task)
 	{
 	}
 	
@@ -66,9 +82,19 @@ public class Loader
 		book = new Book(context);
 	}
 	
-	private void collectPages(File file, int width, int height, LoadTask task)
+	public void collectPages(LoadTask task)
+	{
+		loading = true;
+		pager.clear();
+		
+		collectPages(new File(path), task);
+		
+		loading = false;
+	}
+	
+	private void collectPages(File file, LoadTask task)
 	{	
-		LoaderState state = new LoaderState(context, width, height);
+		LoaderState state = new LoaderState(context, book, width, height);
 		BufferedReader reader = null;
 		try
 		{
@@ -77,6 +103,11 @@ public class Loader
 
 			while (reader.read(buffer) >= 0)
 			{
+				if (task.isCancelled())
+				{
+					break;
+				}
+				
 				state.appendEndToData();
 				state.appendData(buffer.flip());
 				state.clearEnd();
@@ -116,6 +147,16 @@ public class Loader
 			{
 				state.setNext(true);
 				state.findLastSpace(true);
+				
+				if (task.isCancelled())
+				{
+					break;
+				}
+			}
+			
+			if (task.isCancelled())
+			{
+				break;
 			}
 		}
 		while(state.isNext());
@@ -159,16 +200,14 @@ public class Loader
 		return pager.getPages().size();
 	}
 
-	public String getNext()
+	public void next()
 	{
 		pager.next();
-		return getPage();
 	}
 
-	public String getPrevious()
+	public void previous()
 	{
 		pager.previous();
-		return getPage();
 	}
 
 	public boolean isReady()
