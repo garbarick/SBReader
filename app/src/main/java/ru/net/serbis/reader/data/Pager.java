@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Pager
 {
-	private int page;
+	private int page = -1;
 	private List<Long> pages = new ArrayList<Long>();
 
 	public void setPage(int page)
@@ -30,17 +30,17 @@ public class Pager
 	public void clear()
 	{
 		pages.clear();
-		page = 0;
+		page = -1;
 	}
 	
-	public long getSkip()
+	public long getPageSkip()
 	{
-		return page == 0 ? 0 : pages.get(page - 1);
+		return page > 0 ? pages.get(page - 1) : 0;
 	}
 	
 	public int getPageSize()
 	{
-		return (int)(pages.get(page) - getSkip());
+		return (int)(pages.get(page) - getPageSkip());
 	}
 	
 	public void next()

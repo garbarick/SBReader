@@ -2,6 +2,7 @@ package ru.net.serbis.reader.data;
 
 import android.content.*;
 import android.widget.*;
+import java.io.*;
 import ru.net.serbis.reader.*;
 
 public class Book
@@ -25,8 +26,7 @@ public class Book
 		TextView text = new TextView(context);
 		setFontName(new Font(text.getTypeface()).getName());
 		
-		int size = (int) (text.getTextSize() / context.getResources().getDisplayMetrics().scaledDensity);
-		setFontSize(size);
+		setFontSize((int) (text.getTextSize() / context.getResources().getDisplayMetrics().scaledDensity));
 	}
 
 	public void setId(long id)
@@ -97,5 +97,10 @@ public class Book
 	public long getPosition()
 	{
 		return position;
+	}
+	
+	public String getName()
+	{
+		return new File(path).getName();
 	}
 }

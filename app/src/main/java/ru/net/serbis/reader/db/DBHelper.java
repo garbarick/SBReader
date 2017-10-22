@@ -48,4 +48,24 @@ public class DBHelper extends SQLiteOpenHelper
 	{
 		return books.getBook(file);
 	}
+	
+	public void saveBook(Book book)
+	{
+		books.saveBook(book);
+	}
+	
+	public void updateBookPosition(Book book)
+	{
+		books.updateBookPosition(book);
+	}
+	
+	public Pager getPages(Book book)
+	{
+		return pages.getPager(book.getId());
+	}
+	
+	public void savePages(Book book, Pager pager)
+	{
+		pages.savePager(book.getId(), pager);
+	}
 }

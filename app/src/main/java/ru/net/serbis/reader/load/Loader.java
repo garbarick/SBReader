@@ -14,7 +14,7 @@ public class Loader
 
 	protected Context context;
 	protected String path;
-	protected Pager pager = new Pager();
+	protected Pager pager;
 	protected DBHelper db;
 	protected boolean loading;
 	protected Book book;
@@ -50,31 +50,44 @@ public class Loader
 	public void clear()
 	{
 		path = null;
-		pager.clear();
+		pager = null;
 		book = null;
 	}
 
 	public void load(LoadTask task)
 	{
 		loading = true;
-		pager.clear();
+		pager = new Pager();
 		
 		File file = new File(path);
 		book = db.getBook(file);
-		if (book != null)
+		if (book != null && book.getSize() == file.length())
 		{
 			collectPagesFromDB(file, task);
 		}
 		else
 		{
+			pager.setPage(0);
 			initBook();
 			collectPages(file, task);
+			saveBook();
 		}
 		loading = false;
 	}
 	
 	private void collectPagesFromDB(File file, LoadTask task)
 	{
+		pager = db.getPages(book);
+		int page = 0;
+		for(long position : pager.getPages())
+		{
+			if (position > book.getPosition())
+			{
+				break;
+			}
+			page ++;
+		}
+		pager.setPage(page);
 	}
 	
 	private void initBook()
@@ -88,6 +101,7 @@ public class Loader
 		pager.clear();
 		
 		collectPages(new File(path), task);
+		saveBook();
 		
 		loading = false;
 	}
@@ -124,6 +138,12 @@ public class Loader
 		{
 			Utils.close(reader);
 			pager.addPage(file.length());
+			if (pager.getPage() == -1)
+			{
+				pager.setPage(getPageCount() - 1);
+			}
+			book.setPath(path);
+			book.setSize(file.length());
 		}
 	}
 
@@ -134,6 +154,10 @@ public class Loader
 			if (state.isNext())
 			{
 				state.initPosition();
+				if (pager.getPage() == -1 && book.getPosition() < state.getPosition())
+				{
+					pager.setPage(getPageCount());
+				}
 				pager.addPage(state.getPosition());
 				task.progress();
 
@@ -164,7 +188,11 @@ public class Loader
 
 	public String getPage()
 	{
-		long skip = pager.getSkip();
+		long skip = pager.getPageSkip();
+		
+		book.setPosition(skip);
+		updateBookPosition();
+		
 		CharBuffer buffer = CharBuffer.allocate(pager.getPageSize());
 		BufferedReader reader = null;
 		try
@@ -223,5 +251,16 @@ public class Loader
 	public Book getBook()
 	{
 		return book;
+	}
+	
+	private void saveBook()
+	{
+		db.saveBook(book);
+		db.savePages(book, pager);
+	}
+	
+	private void updateBookPosition()
+	{
+		db.updateBookPosition(book);
 	}
 }

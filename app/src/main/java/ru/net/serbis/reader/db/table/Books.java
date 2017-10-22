@@ -1,5 +1,6 @@
 package ru.net.serbis.reader.db.table;
 
+import android.content.*;
 import android.database.*;
 import android.database.sqlite.*;
 import java.io.*;
@@ -13,7 +14,7 @@ public class Books extends Table
 	{
 		super(helper);
 	}
-	
+
 	@Override
 	protected void initInternal(SQLiteDatabase db)
 	{
@@ -29,42 +30,104 @@ public class Books extends Table
 			" position integer" +
 			")");
 	}
-	
-	public Book getBook(File file)
+
+	public Book getBook(final File file)
 	{
-		SQLiteDatabase db = null;
-		try
-		{
-			db = helper.getReadableDatabase();
-			Cursor cursor = db.query(
-				"books",
-				new String[]{"id", "path", "charset", "font_name", "font_size", "size", "position"}, 
-				"name = ?",
-				new String[]{file.getName()}, 
-				null, 
-				null, 
-				null);
-			if (cursor.moveToFirst())
+		return read(
+			new Action<Book>()
 			{
-				Book book = new Book();
-				book.setId(cursor.getLong(0));
-				book.setPath(cursor.getString(1));
-				book.setCharset(cursor.getString(2));
-				book.setFontName(cursor.getString(3));
-				book.setFontSize(cursor.getInt(4));
-				book.setSize(cursor.getLong(5));
-				book.setPosition(cursor.getLong(6));
-				return book;
+				public Book call(SQLiteDatabase db)
+				{
+					return getBook(db, file);
+				}
 			}
-		}
-		catch(Throwable e)
+		);
+	}
+
+	private Book getBook(SQLiteDatabase db, File file)
+	{
+		Cursor cursor = db.query(
+			"books",
+			new String[]{"id", "path", "charset", "font_name", "font_size", "size", "position"}, 
+			"name = ?",
+			new String[]{file.getName()}, 
+			null, 
+			null, 
+			null);
+		if (cursor.moveToFirst())
 		{
-			Log.info(this, e);
-		}
-		finally
-		{
-			Utils.close(db);
+			Book book = new Book();
+			book.setId(cursor.getLong(0));
+			book.setPath(cursor.getString(1));
+			book.setCharset(cursor.getString(2));
+			book.setFontName(cursor.getString(3));
+			book.setFontSize(cursor.getInt(4));
+			book.setSize(cursor.getLong(5));
+			book.setPosition(cursor.getLong(6));
+			return book;
 		}
 		return null;
+	}
+
+	public void saveBook(final Book book)
+	{
+		write(
+			new Action<Void>()
+			{
+				public Void call(SQLiteDatabase db)
+				{
+					if (book.getId() == 0)
+					{
+						addBook(db, book);
+					}
+					updateBook(db, book);
+					return null;
+				}
+			}
+		);
+	}
+
+	private void addBook(SQLiteDatabase db, Book book)
+	{
+		ContentValues values = new ContentValues();
+		values.put("name", book.getName());
+		values.put("path", book.getPath());
+		values.put("size", book.getSize());
+		long id = db.insert("books", null, values);
+		book.setId(id);
+	}
+
+	private void updateBook(SQLiteDatabase db, Book book)
+	{
+		ContentValues values = new ContentValues();
+		values.put("charset", book.getCharset());
+		values.put("font_name", book.getFontName());
+		values.put("font_size", book.getFontSize());
+		db.update("books", values, "id = ?", new String[]{String.valueOf(book.getId())});
+	}
+
+	public void updateBookPosition(final Book book)
+	{
+		if (book.getId() == 0)
+		{
+			return;
+		}
+		write(
+			new Action<Void>()
+			{
+				public Void call(SQLiteDatabase db)
+				{
+					updateBookPosition(db, book);
+					return null;
+				}
+			}
+		);
+	}
+
+	private void updateBookPosition(SQLiteDatabase db, Book book)
+	{
+		ContentValues values = new ContentValues();
+		values.put("position", book.getPosition());
+		db.update("books", values, "id = ?", new String[]{String.valueOf(book.getId())});
 	}
 }
