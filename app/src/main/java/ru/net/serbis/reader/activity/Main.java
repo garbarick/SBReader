@@ -218,7 +218,7 @@ public class Main extends Activity
 	
 	private void selectFontName()
 	{
-		new FontNames(this, loader.getBook().getFontName())
+		new FontNames(this, loader.getBook().getFontSize(), loader.getBook().getFontName())
 		{
 			public void onOk(String fontName)
 			{
@@ -230,7 +230,7 @@ public class Main extends Activity
 	
 	private void selectFontSize()
 	{
-		new FontSizes(this, loader.getBook().getFontSize())
+		new FontSizes(this, loader.getBook().getFontSize(), loader.getBook().getFontName())
 		{
 			public void onOk(int fontSize)
 			{

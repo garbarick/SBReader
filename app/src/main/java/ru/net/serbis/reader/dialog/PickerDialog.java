@@ -5,18 +5,28 @@ import android.content.*;
 import android.widget.*;
 import java.util.*;
 
-public abstract class PickerDialog extends AlertDialog.Builder
+public abstract class PickerDialog extends AlertDialog.Builder implements NumberPicker.OnValueChangeListener
 {
 	protected List<String> values;
+	protected int current;
+	protected int min;
+	protected int max;
+	protected TextView titleView;
 	
 	public PickerDialog(Context context, int title, int current, int min, int max, List<String> values)
 	{
 		super(context);
 		this.values = values;
+		this.current = current;
+		this.min = min;
+		this.max = max;
 
-		setTitle(title);
+		titleView = createTitleView();
+		titleView.setText(title);
+		setCustomTitle(titleView);
 
 		final NumberPicker picker = getPicker(current, min, max);
+		picker.setOnValueChangedListener(this);
 		setView(picker);
 
 		setPositiveButton(
@@ -30,7 +40,6 @@ public abstract class PickerDialog extends AlertDialog.Builder
 			}
 		);
 		setNegativeButton(android.R.string.cancel, null);
-		show();
 	}
 
 	protected NumberPicker getPicker(int current, int min, int max)
@@ -47,4 +56,16 @@ public abstract class PickerDialog extends AlertDialog.Builder
 	}
 
 	public abstract void onOk(NumberPicker picker);
+	
+	
+	public void onValueChange(NumberPicker picker, int oldValue, int newValue)
+	{
+	}
+	
+	protected TextView createTitleView()
+	{
+		TextView title = new TextView(getContext());
+		title.setPadding(10, 10, 10, 10);
+		return title;
+	}
 }

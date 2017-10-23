@@ -1,19 +1,23 @@
 package ru.net.serbis.reader.dialog;
 
 import android.content.*;
+import android.widget.*;
 import java.io.*;
 import java.util.*;
 import ru.net.serbis.reader.*;
+import ru.net.serbis.reader.data.*;
 
 public abstract class FontNames extends ComboDialog
 {
-	public FontNames(Context context, String fontName)
+	public FontNames(Context context, int fontSize, String fontName)
 	{
 		super(
 			context,
 			fontName, 
 			R.string.font_name,
 			getFontNames());
+		titleView.setTextSize(fontSize);
+		show();
 	}
 
 	private static List<String> getFontNames()
@@ -39,5 +43,11 @@ public abstract class FontNames extends ComboDialog
 			}
 		);
 		return result;
+	}
+
+	@Override
+	public void onValueChange(NumberPicker picker, int oldValue, int newValue)
+	{
+		titleView.setTypeface(new Font(values.get(newValue)).getTypeface());
 	}
 }

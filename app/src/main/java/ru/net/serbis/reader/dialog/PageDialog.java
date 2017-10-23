@@ -9,6 +9,7 @@ public abstract class PageDialog extends PickerDialog
 	public PageDialog(Context context, int page, int maxPage)
 	{
 		super(context, R.string.open_page, page, 1, maxPage, null);
+		show();
 	}
 
 	@Override

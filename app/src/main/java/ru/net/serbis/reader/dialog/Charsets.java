@@ -14,6 +14,8 @@ public abstract class Charsets extends ComboDialog
 			charset, 
 			R.string.charset,
 			getCharsets());
+			
+		show();
 	}
 	
 	private static List<String> getCharsets()
