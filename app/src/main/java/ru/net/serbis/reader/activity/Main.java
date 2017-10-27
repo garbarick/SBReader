@@ -13,32 +13,32 @@ public class Main extends Activity
 {
 	private Loader loader;
 	private LoadTask task;
-	
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-		
+
 		initNextPage();
 		initPreviousPage();
 		cancel();
-		
+
 		loader = new Loader(this);
     }
-	
+
 	private void cancel()
 	{
 		if (task != null)
 		{
 			task.cancel(false);
 		}
-		
+
 		UIUtils.hideItems(this, R.id.progress);
 		UIUtils.hideItems(this, R.id.load);
 		UIUtils.showItems(this, R.id.buttons);
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -46,7 +46,7 @@ public class Main extends Activity
 		inflater.inflate(R.menu.main, menu);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
@@ -56,10 +56,10 @@ public class Main extends Activity
 		menu.findItem(R.id.charser).setEnabled(loader.isReady());
 		menu.findItem(R.id.font_name).setEnabled(loader.isReady());
 		menu.findItem(R.id.font_size).setEnabled(loader.isReady());
-		
+
 		return true;
 	}
-	
+
 	@Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -69,7 +69,7 @@ public class Main extends Activity
 		}
 		return super.onOptionsItemSelected(item);
     }
-	
+
 	private boolean onItemMenuSelected(int id, Object object)
     {
 		switch (id)
@@ -82,32 +82,32 @@ public class Main extends Activity
 				cancel();
 				UIUtils.closeFile(this, loader);
 				return true;
-				
+
 			case R.id.open_page:
 				openPage();
 				return true;
-				
+
 			case R.id.charser:
 				selectCharset();
 				return true;
-			
+
 			case R.id.font_name:
 				selectFontName();
 				return true;
-				
+
 			case R.id.font_size:
 				selectFontSize();
 				return true;
 		}
         return false;
     }
-	
+
 	private void openFile()
 	{
 		TextView text = UIUtils.getText(this);
 		loader.setWidth(text.getWidth());
 		loader.setHeight(text.getHeight());
-		
+
 		new FileChooser(this, R.string.choose_file, false)
 		{
 			public void onChoose(String path)
@@ -119,7 +119,7 @@ public class Main extends Activity
 			}
 		};
 	}
-	
+
 	private void previousPage()
 	{
 		if (loader.isReady())
@@ -128,7 +128,7 @@ public class Main extends Activity
 			UIUtils.openPage(this, loader);
 		}
 	}
-	
+
 	private void nextPage()
 	{
 		if (loader.isReady())
@@ -137,7 +137,7 @@ public class Main extends Activity
 			UIUtils.openPage(this, loader);
 		}
 	}
-	
+
 	private void initNextPage()
 	{
 		Button button = UIUtils.findView(this, R.id.next_page);
@@ -151,7 +151,7 @@ public class Main extends Activity
 			}
 		);
 	}
-	
+
 	private void initPreviousPage()
 	{
 		Button button = UIUtils.findView(this, R.id.previous_page);
@@ -165,7 +165,7 @@ public class Main extends Activity
 			}
 		);
 	}
-	
+
 	private void openPage()
 	{
 		new PageDialog(this, loader.getPageNum(), loader.getPageCount())
@@ -180,30 +180,40 @@ public class Main extends Activity
 			}
 		};
 	}
-	
+
 	@Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)
+    public boolean dispatchKeyEvent(KeyEvent event)
 	{
-		switch(keyCode)
+        int keyCode = event.getKeyCode();
+		int action = event.getAction();
+        switch (keyCode)
 		{
-			case KeyEvent.KEYCODE_VOLUME_DOWN:
-				nextPage();
-				return true;
-			
 			case KeyEvent.KEYCODE_VOLUME_UP:
-				previousPage();
+				if (KeyEvent.ACTION_DOWN == action)
+				{
+					previousPage();
+				}
 				return true;
+
+			case KeyEvent.KEYCODE_VOLUME_DOWN:
+				if (KeyEvent.ACTION_DOWN == action)
+				{
+					nextPage();
+				}
+				return true;
+
+			default:
+				return super.dispatchKeyEvent(event);
         }
-        return super.onKeyDown(keyCode, event);
     }
-	
+
 	private void reload()
 	{
 		cancel();
 		task = new LoadTask(Main.this, loader, Constants.RELOAD);
 		task.execute();
 	}
-	
+
 	private void selectCharset()
 	{
 		new Charsets(this, loader.getBook().getCharset())
@@ -215,7 +225,7 @@ public class Main extends Activity
 			}
 		};
 	}
-	
+
 	private void selectFontName()
 	{
 		new FontNames(this, loader.getBook().getFontSize(), loader.getBook().getFontName())
@@ -227,7 +237,7 @@ public class Main extends Activity
 			}
 		};
 	}
-	
+
 	private void selectFontSize()
 	{
 		new FontSizes(this, loader.getBook().getFontSize(), loader.getBook().getFontName())

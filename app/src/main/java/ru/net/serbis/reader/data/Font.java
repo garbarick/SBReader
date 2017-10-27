@@ -39,7 +39,7 @@ public class Font
 
 	public Typeface getTypeface()
 	{
-		if (typeface == null)
+		if (typeface == null && name != null)
 		{
 			return Typeface.createFromFile(
 				new File(

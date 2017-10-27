@@ -41,12 +41,12 @@ public class Loader
 	{
 		this.path = path;
 	}
-	
+
 	public boolean isLoading()
 	{
 		return loading;
 	}
-	
+
 	public void clear()
 	{
 		path = null;
@@ -58,7 +58,7 @@ public class Loader
 	{
 		loading = true;
 		pager = new Pager();
-		
+
 		File file = new File(path);
 		book = db.getBook(file);
 		if (book != null && book.getSize() == file.length())
@@ -69,17 +69,19 @@ public class Loader
 		{
 			pager.setPage(0);
 			initBook();
-			collectPages(file, task);
-			saveBook();
+			if (collectPages(file, task))
+			{
+				saveBook();
+			}
 		}
 		loading = false;
 	}
-	
+
 	private void collectPagesFromDB(File file, LoadTask task)
 	{
 		pager = db.getPages(book);
 		int page = 0;
-		for(long position : pager.getPages())
+		for (long position : pager.getPages())
 		{
 			if (position > book.getPosition())
 			{
@@ -89,27 +91,30 @@ public class Loader
 		}
 		pager.setPage(page);
 	}
-	
+
 	private void initBook()
 	{
 		book = new Book(context);
 	}
-	
+
 	public void collectPages(LoadTask task)
 	{
 		loading = true;
 		pager.clear();
-		
-		collectPages(new File(path), task);
-		saveBook();
-		
+
+		if (collectPages(new File(path), task))
+		{
+			saveBook();
+		}
+
 		loading = false;
 	}
-	
-	private void collectPages(File file, LoadTask task)
+
+	private boolean collectPages(File file, LoadTask task)
 	{	
 		LoaderState state = new LoaderState(context, book, width, height);
 		BufferedReader reader = null;
+		boolean canceled = false;
 		try
 		{
 			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), book.getCharset()));
@@ -119,15 +124,20 @@ public class Loader
 			{
 				if (task.isCancelled())
 				{
+					canceled = true;
 					break;
 				}
-				
+
 				state.appendEndToData();
 				state.appendData(buffer.flip());
 				state.clearEnd();
 				state.findLastSpace(false);
-				
-				findPages(state, task);
+
+				if (!findPages(state, task))
+				{
+					canceled = true;
+					break;
+				}
 			}
 		}
 		catch (Throwable e)
@@ -137,18 +147,25 @@ public class Loader
 		finally
 		{
 			Utils.close(reader);
-			pager.addPage(file.length());
-			if (pager.getPage() == -1)
-			{
-				pager.setPage(getPageCount() - 1);
-			}
-			book.setPath(path);
-			book.setSize(file.length());
+			finalBook(file);
 		}
+		return !canceled;
 	}
 
-	private void findPages(LoaderState state, LoadTask task)
+	private void finalBook(File file)
 	{
+		pager.addPage(file.length());
+		if (pager.getPage() == -1)
+		{
+			pager.setPage(getPageCount() - 1);
+		}
+		book.setPath(path);
+		book.setSize(file.length());
+	}
+
+	private boolean findPages(LoaderState state, LoadTask task)
+	{
+		boolean canceled = false;
 		do
 		{
 			if (state.isNext())
@@ -171,28 +188,31 @@ public class Loader
 			{
 				state.setNext(true);
 				state.findLastSpace(true);
-				
+
 				if (task.isCancelled())
 				{
+					canceled = true;
 					break;
 				}
 			}
-			
+
 			if (task.isCancelled())
 			{
+				canceled = true;
 				break;
 			}
 		}
 		while(state.isNext());
+		return !canceled;
 	}
 
 	public String getPage()
 	{
 		long skip = pager.getPageSkip();
-		
+
 		book.setPosition(skip);
 		updateBookPosition();
-		
+
 		CharBuffer buffer = CharBuffer.allocate(pager.getPageSize());
 		BufferedReader reader = null;
 		try
@@ -217,7 +237,7 @@ public class Loader
 	{
 		return pager.getPage() + 1;
 	}
-	
+
 	public void setPageNum(int page)
 	{
 		this.pager.setPage(page - 1);
@@ -247,18 +267,18 @@ public class Loader
 	{
 		return getPageNum() + "/" + getPageCount();
 	}
-	
+
 	public Book getBook()
 	{
 		return book;
 	}
-	
+
 	private void saveBook()
 	{
 		db.saveBook(book);
 		db.savePages(book, pager);
 	}
-	
+
 	private void updateBookPosition()
 	{
 		db.updateBookPosition(book);
