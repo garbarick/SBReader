@@ -8,11 +8,13 @@ import ru.net.serbis.reader.*;
 import ru.net.serbis.reader.dialog.*;
 import ru.net.serbis.reader.load.*;
 import ru.net.serbis.reader.task.*;
+import ru.net.serbis.reader.db.*;
 
 public class Main extends Activity 
 {
 	private Loader loader;
 	private LoadTask task;
+	private DBHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -25,6 +27,10 @@ public class Main extends Activity
 		cancel();
 
 		loader = new Loader(this);
+		
+		db = new DBHelper(this);
+		Integer bookId = db.getSettingInt(Constants.LAST_BOOK);
+		Log.info(this, "bookId=" + bookId);
     }
 
 	private void cancel()
@@ -32,6 +38,7 @@ public class Main extends Activity
 		if (task != null)
 		{
 			task.cancel(false);
+			loader.setLoading(false);
 		}
 
 		UIUtils.hideItems(this, R.id.progress);

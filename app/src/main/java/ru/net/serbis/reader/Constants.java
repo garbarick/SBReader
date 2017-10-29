@@ -30,4 +30,6 @@ public interface Constants
 	
 	int LOAD = 0;
 	int RELOAD = 1;
+	
+	String LAST_BOOK = "lastBook";
 }

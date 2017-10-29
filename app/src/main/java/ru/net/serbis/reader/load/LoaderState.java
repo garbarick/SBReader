@@ -10,6 +10,7 @@ import ru.net.serbis.reader.data.*;
 public class LoaderState
 {
 	protected static final Pattern SPACE_PATTERN = Pattern.compile("\\s\\S*$");
+	protected static final int BUF_SIZE = 512;
 	
 	private boolean next;
 	private long position;
@@ -18,6 +19,7 @@ public class LoaderState
 	private TextView textView;
 	private int width;
 	private int height;
+	private int buffSize;
 	
 	public LoaderState(Context context, Book book, int width, int height)
 	{
@@ -28,6 +30,7 @@ public class LoaderState
 		
 		this.width = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
 		this.height = height;
+		buffSize = BUF_SIZE;
 	}
 
 	public void setNext(boolean next)
@@ -68,6 +71,7 @@ public class LoaderState
 	public void initPosition()
 	{
 		this.position += data.length();
+		buffSize = data.length();
 	}
 	
 	private void measure()
@@ -101,5 +105,10 @@ public class LoaderState
 
 		end.insert(0, data.substring(pos));
 		data.setLength(pos);
+	}
+
+	public int getBuffSize()
+	{
+		return buffSize;
 	}
 }

@@ -10,16 +10,17 @@ public class DBHelper extends SQLiteOpenHelper
 {
 	private Books books = new Books(this);
 	private Pages pages = new Pages(this);
+	private Settings settings = new Settings(this);
 	
 	public DBHelper(Context context)
     {
-        super(context, "db", null, 1);
+        super(context, "db", null, 2);
     }
 
 	@Override
     public void onCreate(SQLiteDatabase db)
     {
-		for (Table table : new Table[]{books, pages})
+		for (Table table : new Table[]{books, pages, settings})
 		{
 			table.init(db);
 		}
@@ -67,5 +68,27 @@ public class DBHelper extends SQLiteOpenHelper
 	public void savePages(Book book, Pager pager)
 	{
 		pages.savePager(book.getId(), pager);
+	}
+	
+	public void setSetting(String name, Object value)
+	{
+		settings.set(name, value);
+	}
+	
+	public String getSetting(String name)
+	{
+		return settings.get(name);
+	}
+	
+	public Integer getSettingInt(String name)
+	{
+		try
+		{
+			return Integer.valueOf(getSetting(name));
+		}
+		catch (NumberFormatException e)
+		{
+			return null;
+		}
 	}
 }

@@ -60,4 +60,13 @@ public class Pager
 			page = 0;
 		}
 	}
+	
+	public long getLastPosition()
+	{
+		if (pages.isEmpty())
+		{
+			return -1;
+		}
+		return pages.get(pages.size() - 1);
+	}
 }

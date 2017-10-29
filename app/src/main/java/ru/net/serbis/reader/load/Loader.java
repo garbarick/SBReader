@@ -10,8 +10,6 @@ import ru.net.serbis.reader.task.*;
 
 public class Loader
 {
-	protected static final int BUF_SIZE = 512;
-
 	protected Context context;
 	protected String path;
 	protected Pager pager;
@@ -46,6 +44,11 @@ public class Loader
 	{
 		return loading;
 	}
+	
+	public void setLoading(boolean loading)
+	{
+		this.loading = loading;
+	}
 
 	public void clear()
 	{
@@ -57,43 +60,64 @@ public class Loader
 	public void load(LoadTask task)
 	{
 		loading = true;
-		pager = new Pager();
 
 		File file = new File(path);
 		book = db.getBook(file);
-		if (book != null && book.getSize() == file.length())
+		if (book != null)
 		{
 			collectPagesFromDB(file, task);
 		}
 		else
 		{
-			pager.setPage(0);
 			initBook();
 			if (collectPages(file, task))
 			{
 				saveBook();
 			}
 		}
+		if (book != null)
+		{
+			db.setSetting(Constants.LAST_BOOK, book.getId());
+		}
+		
 		loading = false;
 	}
 
 	private void collectPagesFromDB(File file, LoadTask task)
 	{
-		pager = db.getPages(book);
-		int page = 0;
-		for (long position : pager.getPages())
+		boolean reload = file.length() != book.getSize();
+	    if (!reload)
 		{
-			if (position > book.getPosition())
-			{
-				break;
-			}
-			page ++;
+			pager = db.getPages(book);
+			reload = file.length() != pager.getLastPosition();
 		}
-		pager.setPage(page);
+		else
+		{
+			pager = new Pager();
+		}
+		if (reload)
+		{
+			collectPages(task);
+		}
+		else
+		{
+			int page = 0;
+			for (long position : pager.getPages())
+			{
+				if (position > book.getPosition())
+				{
+					break;
+				}
+				page ++;
+			}
+			pager.setPage(page);
+		}
 	}
 
 	private void initBook()
 	{
+		pager = new Pager();
+		pager.setPage(0);
 		book = new Book(context);
 	}
 
@@ -118,7 +142,7 @@ public class Loader
 		try
 		{
 			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), book.getCharset()));
-			CharBuffer buffer = CharBuffer.allocate(BUF_SIZE);
+			CharBuffer buffer = CharBuffer.allocate(state.getBuffSize());
 
 			while (reader.read(buffer) >= 0)
 			{
@@ -129,7 +153,8 @@ public class Loader
 				}
 
 				state.appendEndToData();
-				state.appendData(buffer.flip());
+				state.appendData(buffer.clear());
+
 				state.clearEnd();
 				state.findLastSpace(false);
 
@@ -137,6 +162,12 @@ public class Loader
 				{
 					canceled = true;
 					break;
+				}
+
+				if (buffer.capacity() != state.getBuffSize())
+				{
+					buffer.clear();
+					buffer = CharBuffer.allocate(state.getBuffSize());
 				}
 			}
 		}
