@@ -18,16 +18,24 @@ public class Font
 			this.typeface = Constants.DEFAULTS.get(name);
 		}
 	}
-	
+
 	public Font(Typeface typeface)
 	{
 		this.typeface = typeface;
-		for (Map.Entry<String, Typeface> entry : Constants.DEFAULTS.entrySet())
+		if (typeface == null)
 		{
-			if (entry.getValue().equals(typeface))
+			name = Constants.DEFAULTS.keySet().iterator().next();
+			typeface = Constants.DEFAULTS.get(name);
+		}
+		else
+		{
+			for (Map.Entry<String, Typeface> entry : Constants.DEFAULTS.entrySet())
 			{
-				this.name = entry.getKey();
-				break;
+				if (entry.getValue().equals(typeface))
+				{
+					this.name = entry.getKey();
+					break;
+				}
 			}
 		}
 	}
