@@ -91,4 +91,9 @@ public class DBHelper extends SQLiteOpenHelper
 			return null;
 		}
 	}
+	
+	public String getLasrPath()
+	{
+		return books.getLasrPath();
+	}
 }

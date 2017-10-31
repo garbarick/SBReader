@@ -1,8 +1,8 @@
 package ru.net.serbis.reader.activity;
 
 import android.app.*;
-import android.util.*;
 import android.view.*;
+import android.webkit.*;
 import android.widget.*;
 import ru.net.serbis.reader.*;
 import ru.net.serbis.reader.data.*;
@@ -10,12 +10,23 @@ import ru.net.serbis.reader.load.*;
 
 public class UIUtils
 {
-	public static <T extends View> T findView(Activity activity, int id)
+	private static final UIUtils instance = new UIUtils();
+	
+	private UIUtils()
+	{
+	}
+	
+	public static UIUtils getInstance()
+	{
+		return instance;
+	}
+	
+	public <T extends View> T findView(Activity activity, int id)
     {
         return (T) activity.findViewById(id);
     }
 
-	public static void setVisible(Activity activity, int visibility, int... ids)
+	public void setVisible(Activity activity, int visibility, int... ids)
 	{
 		for (int id : ids)
 		{
@@ -24,48 +35,52 @@ public class UIUtils
 		}
 	}
 
-	public static void showItems(Activity activity, int... ids)
+	public void showItems(Activity activity, int... ids)
 	{
 		setVisible(activity, View.VISIBLE, ids);
 	}
 
-	public static void hideItems(Activity activity, int... ids)
+	public void hideItems(Activity activity, int... ids)
 	{
 		setVisible(activity, View.GONE, ids);
 	}
 	
-	public static TextView getTextView(Activity activity, int id)
+	public TextView getTextView(Activity activity, int id)
 	{
-		TextView text = findView(activity, id);
-		return text;
+		return this.<TextView>findView(activity, id);
 	}
 	
-	public static TextView getText(Activity activity)
+	public WebView getWebView(Activity activity, int id)
+	{
+		return this.<WebView>findView(activity, id);
+	}
+	
+	public TextView getText(Activity activity)
 	{
 		return getTextView(activity, R.id.text);
 	}
 	
-	public static TextView getState(Activity activity)
+	public TextView getState(Activity activity)
 	{
 		return getTextView(activity, R.id.state);
 	}
 	
-	public static void openPage(Activity activity, Loader loader)
+	public void openPage(Activity activity, Loader loader)
 	{
 		TextView text = getText(activity);
 		text.setText(loader.getPage());
 		text.setTypeface(new Font(loader.getBook().getFontName()).getTypeface());
-		text.setTextSize(TypedValue.COMPLEX_UNIT_SP, loader.getBook().getFontSize());
+		text.setTextSize(loader.getBook().getFontSize());
 		
 		updateState(activity, loader);
 	}
 	
-	public static void updateState(Activity activity, Loader loader)
+	public void updateState(Activity activity, Loader loader)
 	{
 		getState(activity).setText(loader.getState());
 	}
 	
-	public static void closeFile(Activity activity, Loader loader)
+	public void closeFile(Activity activity, Loader loader)
 	{
 		loader.clear();
 		getText(activity).setText(null);

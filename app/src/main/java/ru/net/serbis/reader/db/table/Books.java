@@ -130,4 +130,39 @@ public class Books extends Table
 		values.put("position", book.getPosition());
 		db.update("books", values, "id = ?", new String[]{String.valueOf(book.getId())});
 	}
+	
+	public String getLasrPath()
+	{
+		return read(
+			new Action<String>()
+			{
+				public String call(SQLiteDatabase db)
+				{
+					return getLasrPath(db);
+				}
+			}
+		);
+	}
+	
+	private String getLasrPath(SQLiteDatabase db)
+	{
+		Cursor cursor = db.query(
+			"settings s, books b",
+			new String[]{"b.path"}, 
+			"s.name = ? and b.id = s.value",
+			new String[]{Constants.LAST_BOOK}, 
+			null, 
+			null, 
+			null);
+		if (cursor.moveToFirst())
+		{
+			String path = cursor.getString(0);
+			File file = new File(path);
+			if (file.exists() && file.isFile())
+			{
+				return path;
+			}
+		}
+		return null;
+	}
 }

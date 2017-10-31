@@ -166,7 +166,6 @@ public class Loader
 
 				if (buffer.capacity() != state.getBuffSize())
 				{
-					buffer.clear();
 					buffer = CharBuffer.allocate(state.getBuffSize());
 				}
 			}
@@ -261,7 +260,7 @@ public class Loader
 		{
 			Utils.close(reader);
 		}
-		return buffer.flip().toString();
+		return buffer.clear().toString();
 	}
 
 	public int getPageNum()

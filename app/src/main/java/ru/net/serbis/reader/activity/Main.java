@@ -5,10 +5,10 @@ import android.os.*;
 import android.view.*;
 import android.widget.*;
 import ru.net.serbis.reader.*;
+import ru.net.serbis.reader.db.*;
 import ru.net.serbis.reader.dialog.*;
 import ru.net.serbis.reader.load.*;
 import ru.net.serbis.reader.task.*;
-import ru.net.serbis.reader.db.*;
 
 public class Main extends Activity 
 {
@@ -27,10 +27,9 @@ public class Main extends Activity
 		cancel();
 
 		loader = new Loader(this);
-		
 		db = new DBHelper(this);
-		Integer bookId = db.getSettingInt(Constants.LAST_BOOK);
-		Log.info(this, "bookId=" + bookId);
+		
+		openLast();
     }
 
 	private void cancel()
@@ -41,9 +40,9 @@ public class Main extends Activity
 			loader.setLoading(false);
 		}
 
-		UIUtils.hideItems(this, R.id.progress);
-		UIUtils.hideItems(this, R.id.load);
-		UIUtils.showItems(this, R.id.buttons);
+		UIUtils.getInstance().hideItems(this, R.id.progress);
+		UIUtils.getInstance().hideItems(this, R.id.load);
+		UIUtils.getInstance().showItems(this, R.id.buttons);
 	}
 
 	@Override
@@ -87,7 +86,7 @@ public class Main extends Activity
 
 			case R.id.close_file:
 				cancel();
-				UIUtils.closeFile(this, loader);
+				UIUtils.getInstance().closeFile(this, loader);
 				return true;
 
 			case R.id.open_page:
@@ -111,20 +110,29 @@ public class Main extends Activity
 
 	private void openFile()
 	{
-		TextView text = UIUtils.getText(this);
-		loader.setWidth(text.getWidth());
-		loader.setHeight(text.getHeight());
-
+		initLoader();
 		new FileChooser(this, R.string.choose_file, false)
 		{
 			public void onChoose(String path)
 			{
-				loader.setPath(path);
-				cancel();
-				task = new LoadTask(Main.this, loader, Constants.LOAD);
-				task.execute();
+				openFile(path);
 			}
 		};
+	}
+
+	private void initLoader()
+	{
+		TextView text = UIUtils.getInstance().getText(this);
+		loader.setWidth(text.getWidth());
+		loader.setHeight(text.getHeight());
+	}
+	
+	private void openFile(String path)
+	{
+		loader.setPath(path);
+		cancel();
+		task = new LoadTask(Main.this, loader, Constants.LOAD);
+		task.execute();
 	}
 
 	private void previousPage()
@@ -132,7 +140,7 @@ public class Main extends Activity
 		if (loader.isReady())
 		{
 			loader.previous();
-			UIUtils.openPage(this, loader);
+			UIUtils.getInstance().openPage(this, loader);
 		}
 	}
 
@@ -141,13 +149,13 @@ public class Main extends Activity
 		if (loader.isReady())
 		{
 			loader.next();
-			UIUtils.openPage(this, loader);
+			UIUtils.getInstance().openPage(this, loader);
 		}
 	}
 
 	private void initNextPage()
 	{
-		Button button = UIUtils.findView(this, R.id.next_page);
+		Button button = UIUtils.getInstance().findView(this, R.id.next_page);
 		button.setOnClickListener(
 			new View.OnClickListener()
 			{
@@ -161,7 +169,7 @@ public class Main extends Activity
 
 	private void initPreviousPage()
 	{
-		Button button = UIUtils.findView(this, R.id.previous_page);
+		Button button = UIUtils.getInstance().findView(this, R.id.previous_page);
 		button.setOnClickListener(
 			new View.OnClickListener()
 			{
@@ -182,7 +190,7 @@ public class Main extends Activity
 				if (page != loader.getPageNum())
 				{
 					loader.setPageNum(page);
-					UIUtils.openPage(Main.this, loader);
+					UIUtils.getInstance().openPage(Main.this, loader);
 				}
 			}
 		};
@@ -217,6 +225,7 @@ public class Main extends Activity
 	private void reload()
 	{
 		cancel();
+		initLoader();
 		task = new LoadTask(Main.this, loader, Constants.RELOAD);
 		task.execute();
 	}
@@ -255,5 +264,14 @@ public class Main extends Activity
 				reload();
 			}
 		};
+	}
+	
+	private void openLast()
+	{
+		String lastPath = db.getLasrPath();
+		if (lastPath != null)
+		{
+			openFile(lastPath);
+		}
 	}
 }

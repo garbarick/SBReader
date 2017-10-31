@@ -23,13 +23,15 @@ public class LoadTask extends AsyncTask<Void, Void, Void>
 	@Override
 	protected Void doInBackground(Void... params)
 	{
-		if (Constants.LOAD == type)
+		switch(type)
 		{
-			loader.load(this);
-		}
-		else if (Constants.RELOAD == type)
-		{
-			loader.collectPages(this);
+			case Constants.LOAD:
+				loader.load(this);
+				break;
+				
+			case Constants.RELOAD:
+				loader.collectPages(this);
+				break;
 		}
 		return null;
 	}
@@ -37,23 +39,23 @@ public class LoadTask extends AsyncTask<Void, Void, Void>
 	@Override
 	protected void onPreExecute()
 	{
-		UIUtils.hideItems(activity, R.id.buttons);
-		UIUtils.showItems(activity, R.id.progress);
-		UIUtils.showItems(activity, R.id.load);
+		UIUtils.getInstance().hideItems(activity, R.id.buttons);
+		UIUtils.getInstance().showItems(activity, R.id.progress);
+		UIUtils.getInstance().showItems(activity, R.id.load);
 	}
 
 	@Override
 	protected void onPostExecute(Void result)
 	{
 		openFirst();
-		UIUtils.hideItems(activity, R.id.load);
-		UIUtils.updateState(activity, loader);
+		UIUtils.getInstance().hideItems(activity, R.id.load);
+		UIUtils.getInstance().updateState(activity, loader);
 	}
 
 	@Override
 	protected void onProgressUpdate(Void... values)
 	{
-		UIUtils.updateState(activity, loader);
+		UIUtils.getInstance().updateState(activity, loader);
 		if (loader.getPageCount() == loader.getPageNum())
 		{
 			openFirst();
@@ -73,8 +75,8 @@ public class LoadTask extends AsyncTask<Void, Void, Void>
 		}
 		firstOpened = true;
 		
-		UIUtils.hideItems(activity, R.id.progress);
-		UIUtils.showItems(activity, R.id.buttons);
-		UIUtils.openPage(activity, loader);
+		UIUtils.getInstance().hideItems(activity, R.id.progress);
+		UIUtils.getInstance().showItems(activity, R.id.buttons);
+		UIUtils.getInstance().openPage(activity, loader);
 	}
 }

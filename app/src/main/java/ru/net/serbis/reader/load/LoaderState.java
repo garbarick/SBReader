@@ -26,7 +26,7 @@ public class LoaderState
 		textView = new TextView(context);
 		textView.setLayoutParams(new ViewGroup.LayoutParams(width, height));
 		textView.setTypeface(new Font(book.getFontName()).getTypeface());
-		textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, book.getFontSize());
+		textView.setTextSize(book.getFontSize());
 		
 		this.width = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
 		this.height = height;
