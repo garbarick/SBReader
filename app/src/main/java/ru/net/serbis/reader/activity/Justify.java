@@ -82,7 +82,7 @@ public class Justify
 		}
 		if (group.length() > 0 && result.size() > 1)
 		{
-			group = result.remove(result.size() - 1) + "\r";
+			group = result.remove(result.size() - 1) + "\n";
 			result.add(group);
 		}
 		return result;
