@@ -72,6 +72,7 @@ public class UIUtils
 		text.setTypeface(new Font(loader.getBook().getFontName()).getTypeface());
 		text.setTextSize(loader.getBook().getFontSize());
 		
+		new Justify().execute(text);
 		updateState(activity, loader);
 	}
 	
