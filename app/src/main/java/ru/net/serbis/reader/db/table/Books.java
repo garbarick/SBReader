@@ -4,6 +4,7 @@ import android.content.*;
 import android.database.*;
 import android.database.sqlite.*;
 import java.io.*;
+import java.util.*;
 import ru.net.serbis.reader.*;
 import ru.net.serbis.reader.data.*;
 import ru.net.serbis.reader.db.*;
@@ -58,7 +59,7 @@ public class Books extends Table
 		{
 			Book book = new Book();
 			book.setId(cursor.getLong(0));
-			book.setPath(cursor.getString(1));
+			book.setFile(file);
 			book.setCharset(cursor.getString(2));
 			book.setFontName(cursor.getString(3));
 			book.setFontSize(cursor.getInt(4));
@@ -91,7 +92,7 @@ public class Books extends Table
 	{
 		ContentValues values = new ContentValues();
 		values.put("name", book.getName());
-		values.put("path", book.getPath());
+		values.put("path", book.getFile().getAbsolutePath());
 		values.put("size", book.getSize());
 		long id = db.insert("books", null, values);
 		book.setId(id);
@@ -130,21 +131,21 @@ public class Books extends Table
 		values.put("position", book.getPosition());
 		db.update("books", values, "id = ?", new String[]{String.valueOf(book.getId())});
 	}
-	
-	public String getLasrPath()
+
+	public File getLastFile()
 	{
 		return read(
-			new Action<String>()
+			new Action<File>()
 			{
-				public String call(SQLiteDatabase db)
+				public File call(SQLiteDatabase db)
 				{
-					return getLasrPath(db);
+					return getLastFile(db);
 				}
 			}
 		);
 	}
-	
-	private String getLasrPath(SQLiteDatabase db)
+
+	private File getLastFile(SQLiteDatabase db)
 	{
 		Cursor cursor = db.query(
 			"settings s, books b",
@@ -156,13 +157,76 @@ public class Books extends Table
 			null);
 		if (cursor.moveToFirst())
 		{
-			String path = cursor.getString(0);
-			File file = new File(path);
+			File file = new File(cursor.getString(0));
 			if (file.exists() && file.isFile())
 			{
-				return path;
+				return file;
 			}
 		}
 		return null;
+	}
+
+	public List<File> getBookFiles()
+	{
+		return read(
+			new Action<List<File>>()
+			{
+				public List<File> call(SQLiteDatabase db)
+				{
+					return getBookFiles(db);
+				}
+			}
+		);
+	}
+
+	private List<File> getBookFiles(SQLiteDatabase db)
+	{
+		List<File> result = new ArrayList<File>();
+		Cursor cursor = db.query(
+			"books",
+			new String[]{"path"}, 
+			null,
+			null,
+			null, 
+			null, 
+			"name");
+		if (cursor.moveToFirst())
+		{
+			if (cursor.moveToFirst())
+			{
+				do 
+				{
+					result.add(new File(cursor.getString(0)));
+				}
+				while(cursor.moveToNext());
+			}
+		}
+		return result;
+	}
+
+	public void clearBookFiles(final List<File> files)
+	{
+		if (files.isEmpty())
+		{
+			return;
+		}
+		write(
+			new Action<Void>()
+			{
+				public Void call(SQLiteDatabase db)
+				{
+					clearBookFiles(db, files);
+					return null;
+				}
+			}
+		);
+	}
+
+	private void clearBookFiles(SQLiteDatabase db, List<File> files)
+	{
+		for (File file : files)
+		{
+			db.delete("books", "path = ?", new String[]{file.getAbsolutePath()});
+		}
 	}
 }

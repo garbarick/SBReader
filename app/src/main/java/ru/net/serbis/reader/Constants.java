@@ -5,18 +5,20 @@ import java.util.*;
 
 public interface Constants
 {
-	String TYPE_TXT = "txt";
+	String TYPE_TXT = ".txt";
+	String TYPE_ZIP = ".zip";
+	String TYPE_TTF = ".ttf";
 	
 	List<String> TYPES = Arrays.asList(
 		new String[]
 		{
-			TYPE_TXT
+			TYPE_TXT,
+			TYPE_ZIP
 		}
 	);
 	
 	String WINDOWS_1251 = "windows-1251";
 	String SYSTEM_FONTS = "/system/fonts";
-	String FONT_EXT = ".ttf";
 	
 	Map<String, Typeface> DEFAULTS = new LinkedHashMap<String, Typeface>()
 	{

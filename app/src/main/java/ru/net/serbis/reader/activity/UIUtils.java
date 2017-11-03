@@ -80,11 +80,4 @@ public class UIUtils
 	{
 		getState(activity).setText(loader.getState());
 	}
-	
-	public void closeFile(Activity activity, Loader loader)
-	{
-		loader.clear();
-		getText(activity).setText(null);
-		getState(activity).setText(null);
-	}
 }

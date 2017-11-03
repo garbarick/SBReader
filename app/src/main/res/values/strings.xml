@@ -3,6 +3,7 @@
 
     <string name="app_name">SBReader</string>
     
+	<string name="open_book">Open Book</string>
 	<string name="open_file">Open File</string>
 	<string name="close_file">Close File</string>
 	<string name="choose_file">Choose File</string>
@@ -10,5 +11,6 @@
 	<string name="charset">Charset</string>
 	<string name="font_name">Font Name</string>
 	<string name="font_size">Font Size</string>
+	<string name="unsupported_format">Unsupportef Format</string>
 	
 </resources>

@@ -9,51 +9,20 @@ import java.io.*;
 import java.util.*;
 import ru.net.serbis.reader.*;
 
-public abstract class FileChooser extends AlertDialog.Builder implements AdapterView.OnItemClickListener
+public abstract class FileChooser extends BaseFileChooser
 {
-	private class FilesAdapter extends ArrayAdapter<File>
-	{
-		public FilesAdapter(Context context)
-		{
-			super(context, android.R.layout.simple_list_item_1, android.R.id.text1);
-		}
-
-		@Override
-		public View getView(int position, View view, ViewGroup parent)
-		{
-			TextView text = (TextView) super.getView(position, view, parent);
-			File file = getItem(position);
-			if (file.equals(folder))
-			{
-				text.setText(file.getPath() + "/..");
-			}
-			else
-			{
-				text.setText(file.getName());
-			}
-			return text;
-		}
-	}
-
 	private boolean onlyFolder;
-	private File folder = Environment.getExternalStorageDirectory();
-	private FilesAdapter adapter;
 	private AlertDialog dialog;
+	private List<String> types;
 
-	public FileChooser(Context context, int title, boolean onlyFolder)
+	public FileChooser(Context context, int title, boolean onlyFolder, List<String> types)
 	{
-		super(context);
+		super(context, title, Environment.getExternalStorageDirectory());
 
 		this.onlyFolder = onlyFolder;
-
-		ListView list = new ListView(context);
-		adapter = new FilesAdapter(context);
-		list.setAdapter(adapter);
-		list.setOnItemClickListener(this);
+		this.types = types;
+		
 		initFiles();
-
-		setTitle(title);
-		setView(list);
 
 		if (onlyFolder)
 		{
@@ -63,32 +32,23 @@ public abstract class FileChooser extends AlertDialog.Builder implements Adapter
 				{
 					public void onClick(DialogInterface dialog, int id)
 					{
-						onChoose(folder.getAbsolutePath());
+						onChoose(folder);
 					}
 				}
 			);
 		}
-		setNegativeButton(android.R.string.cancel, null);
 		dialog = show();
 	}
 
-	public abstract void onChoose(String path);
-
-	private void initFiles()
+	@Override
+	protected List<File> getFilesList()
 	{
-		adapter.setNotifyOnChange(false);
-		adapter.clear();
-
-		File[] files = getFiles();
-		List<File> result = getFiles(files);
+		List<File> result = getFiles(getFiles());
 		if (folder.getParentFile() != null)
 		{
 			result.add(0, folder);
 		}
-
-		adapter.addAll(result);
-		adapter.setNotifyOnChange(true);
-		adapter.notifyDataSetChanged();
+		return result;
 	}
 
 	private File[] getFiles()
@@ -106,7 +66,7 @@ public abstract class FileChooser extends AlertDialog.Builder implements Adapter
 					{
 						return true;
 					}
-					return Constants.TYPES.contains(getExt(file.getName()));
+					return types.contains(Utils.getExt(file.getName()));
 				}
 			}
 		);
@@ -139,6 +99,7 @@ public abstract class FileChooser extends AlertDialog.Builder implements Adapter
 		return result;
 	}
 
+	@Override
 	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
 		File file = adapter.getItem(position);
@@ -150,6 +111,7 @@ public abstract class FileChooser extends AlertDialog.Builder implements Adapter
 				if (parent != null)
 				{
 					folder = parent;
+					adapter.setFolder(folder);
 				}
 				else
 				{
@@ -159,23 +121,14 @@ public abstract class FileChooser extends AlertDialog.Builder implements Adapter
 			else
 			{
 				folder = file;
+				adapter.setFolder(folder);
 			}
 			initFiles();
 		}
 		else
 		{
-			onChoose(file.getAbsolutePath());
+			onChoose(file);
 			dialog.dismiss();
 		}
 	}
-
-	private String getExt(String fileName)
-    {
-        int i = fileName.lastIndexOf('.');
-        if (i > 0)
-        {
-            return fileName.substring(i + 1).toLowerCase();
-        }
-        return "";
-    }
 }

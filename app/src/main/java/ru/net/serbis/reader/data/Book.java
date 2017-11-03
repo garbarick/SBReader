@@ -8,7 +8,7 @@ import ru.net.serbis.reader.*;
 public class Book
 {
 	private long id;
-	private String path;
+	private File file;
 	private String charset;
 	private String fontName;
 	private int fontSize;
@@ -39,14 +39,14 @@ public class Book
 		return id;
 	}
 
-	public void setPath(String path)
+	public void setFile(File file)
 	{
-		this.path = path;
+		this.file = file;
 	}
 
-	public String getPath()
+	public File getFile()
 	{
-		return path;
+		return file;
 	}
 
 	public void setCharset(String charset)
@@ -101,6 +101,6 @@ public class Book
 	
 	public String getName()
 	{
-		return new File(path).getName();
+		return file.getName();
 	}
 }

@@ -1,17 +1,19 @@
 package ru.net.serbis.reader.load;
 
+import android.app.*;
 import android.content.*;
+import android.widget.*;
 import java.io.*;
-import java.nio.*;
 import ru.net.serbis.reader.*;
+import ru.net.serbis.reader.activity.*;
 import ru.net.serbis.reader.data.*;
 import ru.net.serbis.reader.db.*;
 import ru.net.serbis.reader.task.*;
 
-public class Loader
+public abstract class Loader
 {
 	protected Context context;
-	protected String path;
+	protected File file;
 	protected Pager pager;
 	protected DBHelper db;
 	protected boolean loading;
@@ -19,25 +21,15 @@ public class Loader
 	protected int width;
 	protected int height;
 
-	public Loader(Context context)
+	public Loader(Activity context, File file)
 	{
 		this.context = context;
+		this.file = file;
 		db = new DBHelper(context);
-	}
-
-	public void setWidth(int width)
-	{
-		this.width = width;
-	}
-
-	public void setHeight(int height)
-	{
-		this.height = height;
-	}
-
-	public void setPath(String path)
-	{
-		this.path = path;
+		
+		TextView text = UIUtils.getInstance().getText(context);
+		this.width = text.getWidth();
+		this.height = text.getHeight();
 	}
 
 	public boolean isLoading()
@@ -50,27 +42,19 @@ public class Loader
 		this.loading = loading;
 	}
 
-	public void clear()
-	{
-		path = null;
-		pager = null;
-		book = null;
-	}
-
 	public void load(LoadTask task)
 	{
 		loading = true;
 
-		File file = new File(path);
 		book = db.getBook(file);
 		if (book != null)
 		{
-			collectPagesFromDB(file, task);
+			collectPagesFromDB(task);
 		}
 		else
 		{
 			initBook();
-			if (collectPages(file, task))
+			if (loadPages(task))
 			{
 				saveBook();
 			}
@@ -83,7 +67,7 @@ public class Loader
 		loading = false;
 	}
 
-	private void collectPagesFromDB(File file, LoadTask task)
+	protected void collectPagesFromDB(LoadTask task)
 	{
 		boolean reload = file.length() != book.getSize();
 	    if (!reload)
@@ -114,7 +98,7 @@ public class Loader
 		}
 	}
 
-	private void initBook()
+	protected void initBook()
 	{
 		pager = new Pager();
 		pager.setPage(0);
@@ -126,74 +110,29 @@ public class Loader
 		loading = true;
 		pager.clear();
 
-		if (collectPages(new File(path), task))
+		if (loadPages(task))
 		{
 			saveBook();
+			db.setSetting(Constants.LAST_BOOK, book.getId());
 		}
 
 		loading = false;
 	}
 
-	private boolean collectPages(File file, LoadTask task)
-	{	
-		LoaderState state = new LoaderState(context, book, width, height);
-		BufferedReader reader = null;
-		boolean canceled = false;
-		try
-		{
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), book.getCharset()));
-			CharBuffer buffer = CharBuffer.allocate(state.getBuffSize());
+	protected abstract boolean loadPages(LoadTask task);
 
-			while (reader.read(buffer) >= 0)
-			{
-				if (task.isCancelled())
-				{
-					canceled = true;
-					break;
-				}
-
-				state.appendEndToData();
-				state.appendData(buffer.clear());
-
-				state.clearEnd();
-				state.findLastSpace(false);
-
-				if (!findPages(state, task))
-				{
-					canceled = true;
-					break;
-				}
-
-				if (buffer.capacity() != state.getBuffSize())
-				{
-					buffer = CharBuffer.allocate(state.getBuffSize());
-				}
-			}
-		}
-		catch (Throwable e)
-		{
-			Log.info(this, e);
-		}
-		finally
-		{
-			Utils.close(reader);
-			finalBook(file);
-		}
-		return !canceled;
-	}
-
-	private void finalBook(File file)
+	protected void finalBook()
 	{
 		pager.addPage(file.length());
 		if (pager.getPage() == -1)
 		{
 			pager.setPage(getPageCount() - 1);
 		}
-		book.setPath(path);
+		book.setFile(file);
 		book.setSize(file.length());
 	}
 
-	private boolean findPages(LoaderState state, LoadTask task)
+	protected boolean findPages(LoaderState state, LoadTask task)
 	{
 		boolean canceled = false;
 		do
@@ -236,32 +175,7 @@ public class Loader
 		return !canceled;
 	}
 
-	public String getPage()
-	{
-		long skip = pager.getPageSkip();
-
-		book.setPosition(skip);
-		updateBookPosition();
-
-		CharBuffer buffer = CharBuffer.allocate(pager.getPageSize());
-		BufferedReader reader = null;
-		try
-		{
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(path), book.getCharset()));
-			while ((skip -= reader.skip(skip)) > 0)
-			{}
-			reader.read(buffer);
-		}
-		catch (Throwable e)
-		{
-			Log.info(this, e);
-		}
-		finally
-		{
-			Utils.close(reader);
-		}
-		return buffer.clear().toString();
-	}
+	public abstract String getPage();
 
 	public int getPageNum()
 	{
@@ -290,7 +204,7 @@ public class Loader
 
 	public boolean isReady()
 	{
-		return path != null;
+		return file != null;
 	}
 
 	public String getState()
@@ -303,13 +217,13 @@ public class Loader
 		return book;
 	}
 
-	private void saveBook()
+	protected void saveBook()
 	{
 		db.saveBook(book);
 		db.savePages(book, pager);
 	}
 
-	private void updateBookPosition()
+	protected void updateBookPosition()
 	{
 		db.updateBookPosition(book);
 	}

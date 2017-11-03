@@ -31,12 +31,12 @@ public abstract class FontNames extends ComboDialog
 				public boolean accept(File file)
 				{
 					String name = file.getName();
-					if (name.endsWith(Constants.FONT_EXT))
+					if (Constants.TYPE_TTF.equals(Utils.getExt(name)))
 					{
 						result.add(
 							name.substring(
 								0,
-								name.length() - Constants.FONT_EXT.length()));
+								name.length() - Constants.TYPE_TTF.length()));
 					}
 					return false;
 				}

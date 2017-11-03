@@ -24,14 +24,14 @@ public class Justify
 			}
 		);
 	}
-	
+
 	private void justify(TextView textView)
 	{
 		String text = textView.getText().toString();
 		TextPaint paint = textView.getPaint();
 		float spaceWidth = paint.measureText(SPACE);
 		StringBuilder buffer = new StringBuilder();
-		
+
 		int lineCount = textView.getLineCount();
 		int width = textView.getWidth();
 
@@ -53,16 +53,17 @@ public class Justify
 		{
 			String joined = TextUtils.join(EMPTY, words);
 			float withOutSpace = paint.measureText(joined);
-			int spaceCount = (int) (((width - withOutSpace) / (words.size() - 1)) / spaceWidth);
-			if (spaceCount > 1)
+			int spaceCount = (int) ((width - withOutSpace) / spaceWidth);
+
+			if (spaceCount >= words.size() - 1)
 			{
-				String delimiter = repeat(SPACE, spaceCount);
-				return TextUtils.join(delimiter, words);
+				addSpaces(spaceCount, words, width, paint);
+				return TextUtils.join(EMPTY, words);
 			}
 		}
 		return line;
 	}
-	
+
 	private List<String> getWords(String text)
 	{
 		String[] words = TextUtils.split(text, SPACE_PATTERN);
@@ -88,13 +89,28 @@ public class Justify
 		return result;
 	}
 
-	private String repeat(String text, int count)
+	private void addSpaces(int spaceCount, List<String> words, int width, TextPaint paint)
 	{
-		StringBuilder result = new StringBuilder(text.length() * count);
-		while (count-- > 0) 
+		while (spaceCount > 0)
 		{
-			result.append(text);
+			for (int i = 0; i < words.size() - 1; i++)
+			{
+				String word = words.remove(i);
+				
+				String joined = TextUtils.join(EMPTY, words) + word + SPACE;
+				float newWidth = paint.measureText(joined);
+				if (newWidth > width)
+				{
+					words.add(i, word);
+					return;
+				}
+				words.add(i, word + SPACE);
+				spaceCount --;
+				if (spaceCount <= 0)
+				{
+					return;
+				}
+			}
 		}
-		return result.toString();
 	}
 }

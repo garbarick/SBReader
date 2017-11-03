@@ -52,7 +52,7 @@ public class Font
 			return Typeface.createFromFile(
 				new File(
 					Constants.SYSTEM_FONTS,
-					name + Constants.FONT_EXT));
+					name + Constants.TYPE_TTF));
 		}
 		return typeface;
 	}

@@ -4,6 +4,7 @@ import android.app.*;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
+import java.io.*;
 import ru.net.serbis.reader.*;
 import ru.net.serbis.reader.db.*;
 import ru.net.serbis.reader.dialog.*;
@@ -21,14 +22,11 @@ public class Main extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
+		db = new DBHelper(this);
+		
 		initNextPage();
 		initPreviousPage();
 		cancel();
-
-		loader = new Loader(this);
-		db = new DBHelper(this);
-		
 		openLast();
     }
 
@@ -37,12 +35,17 @@ public class Main extends Activity
 		if (task != null)
 		{
 			task.cancel(false);
-			loader.setLoading(false);
+			if (loader != null)
+			{
+				loader.setLoading(false);
+			}
 		}
 
 		UIUtils.getInstance().hideItems(this, R.id.progress);
 		UIUtils.getInstance().hideItems(this, R.id.load);
 		UIUtils.getInstance().showItems(this, R.id.buttons);
+		UIUtils.getInstance().getText(this).setText(null);
+		UIUtils.getInstance().getState(this).setText(null);
 	}
 
 	@Override
@@ -56,12 +59,16 @@ public class Main extends Activity
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
-		menu.findItem(R.id.open_file).setEnabled(!loader.isLoading());
-		menu.findItem(R.id.close_file).setEnabled(loader.isReady());
-		menu.findItem(R.id.open_page).setEnabled(loader.isReady());
-		menu.findItem(R.id.charser).setEnabled(loader.isReady());
-		menu.findItem(R.id.font_name).setEnabled(loader.isReady());
-		menu.findItem(R.id.font_size).setEnabled(loader.isReady());
+		boolean loading = isLoading();
+		boolean ready = isReady();
+		
+		menu.findItem(R.id.open_book).setEnabled(loading);
+		menu.findItem(R.id.open_file).setEnabled(loading);
+		menu.findItem(R.id.close_file).setEnabled(ready);
+		menu.findItem(R.id.open_page).setEnabled(ready);
+		menu.findItem(R.id.charser).setEnabled(ready);
+		menu.findItem(R.id.font_name).setEnabled(ready);
+		menu.findItem(R.id.font_size).setEnabled(ready);
 
 		return true;
 	}
@@ -80,13 +87,17 @@ public class Main extends Activity
     {
 		switch (id)
 		{
+			case R.id.open_book:
+				openBook();
+				return true;
+				
 			case R.id.open_file:
 				openFile();
 				return true;
 
 			case R.id.close_file:
 				cancel();
-				UIUtils.getInstance().closeFile(this, loader);
+				loader = null;
 				return true;
 
 			case R.id.open_page:
@@ -108,36 +119,55 @@ public class Main extends Activity
         return false;
     }
 
-	private void openFile()
+	private void openBook()
 	{
-		initLoader();
-		new FileChooser(this, R.string.choose_file, false)
+		new BookChooser(this)
 		{
-			public void onChoose(String path)
+			public void onChoose(File file)
 			{
-				openFile(path);
+				openFile(file);
 			}
 		};
 	}
-
-	private void initLoader()
+	
+	private void openFile()
 	{
-		TextView text = UIUtils.getInstance().getText(this);
-		loader.setWidth(text.getWidth());
-		loader.setHeight(text.getHeight());
+		new FileChooser(this, R.string.choose_file, false, Constants.TYPES)
+		{
+			public void onChoose(File file)
+			{
+				openFile(file);
+			}
+		};
 	}
 	
-	private void openFile(String path)
+	private void openFile(File file)
 	{
-		loader.setPath(path);
 		cancel();
+		loader = LoaderFactory.getInstance().getLoader(this, file);
+		if (loader == null)
+		{
+			Toast.makeText(this, getResources().getString(R.string.unsupported_format), Toast.LENGTH_LONG).show();
+			return;
+		}
+			
 		task = new LoadTask(Main.this, loader, Constants.LOAD);
 		task.execute();
 	}
 
+	private boolean isLoading()
+	{
+		return loader == null || !loader.isLoading();
+	}
+	
+	private boolean isReady()
+	{
+		return loader != null && loader.isReady();
+	}
+	
 	private void previousPage()
 	{
-		if (loader.isReady())
+		if (isReady())
 		{
 			loader.previous();
 			UIUtils.getInstance().openPage(this, loader);
@@ -146,7 +176,7 @@ public class Main extends Activity
 
 	private void nextPage()
 	{
-		if (loader.isReady())
+		if (isReady())
 		{
 			loader.next();
 			UIUtils.getInstance().openPage(this, loader);
@@ -225,7 +255,6 @@ public class Main extends Activity
 	private void reload()
 	{
 		cancel();
-		initLoader();
 		task = new LoadTask(Main.this, loader, Constants.RELOAD);
 		task.execute();
 	}
@@ -268,10 +297,10 @@ public class Main extends Activity
 	
 	private void openLast()
 	{
-		String lastPath = db.getLasrPath();
-		if (lastPath != null)
+		File file = db.getLastFile();
+		if (file != null)
 		{
-			openFile(lastPath);
+			openFile(file);
 		}
 	}
 }
