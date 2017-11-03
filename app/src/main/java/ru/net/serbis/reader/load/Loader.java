@@ -44,8 +44,6 @@ public abstract class Loader
 
 	public void load(LoadTask task)
 	{
-		loading = true;
-
 		book = db.getBook(file);
 		if (book != null)
 		{
@@ -63,8 +61,6 @@ public abstract class Loader
 		{
 			db.setSetting(Constants.LAST_BOOK, book.getId());
 		}
-		
-		loading = false;
 	}
 
 	protected void collectPagesFromDB(LoadTask task)
@@ -107,7 +103,6 @@ public abstract class Loader
 
 	public void collectPages(LoadTask task)
 	{
-		loading = true;
 		pager.clear();
 
 		if (loadPages(task))
@@ -115,8 +110,6 @@ public abstract class Loader
 			saveBook();
 			db.setSetting(Constants.LAST_BOOK, book.getId());
 		}
-
-		loading = false;
 	}
 
 	protected abstract boolean loadPages(LoadTask task);

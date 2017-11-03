@@ -35,10 +35,10 @@ public class Main extends Activity
 		if (task != null)
 		{
 			task.cancel(false);
-			if (loader != null)
-			{
-				loader.setLoading(false);
-			}
+		}
+		if (loader != null)
+		{
+			loader.setLoading(false);
 		}
 
 		UIUtils.getInstance().hideItems(this, R.id.progress);

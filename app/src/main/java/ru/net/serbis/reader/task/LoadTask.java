@@ -23,6 +23,7 @@ public class LoadTask extends AsyncTask<Void, Void, Void>
 	@Override
 	protected Void doInBackground(Void... params)
 	{
+		loader.setLoading(true);
 		switch(type)
 		{
 			case Constants.LOAD:
@@ -50,6 +51,7 @@ public class LoadTask extends AsyncTask<Void, Void, Void>
 		openFirst();
 		UIUtils.getInstance().hideItems(activity, R.id.load);
 		UIUtils.getInstance().updateState(activity, loader);
+		loader.setLoading(false);
 	}
 
 	@Override
