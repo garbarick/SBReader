@@ -9,14 +9,25 @@ import ru.net.serbis.reader.db.table.*;
 
 public class DBHelper extends SQLiteOpenHelper
 {
-	private Books books = new Books(this);
-	private Pages pages = new Pages(this);
-	private Settings settings = new Settings(this);
+	private Context context;
+	private Books books;
+	private Pages pages;
+	private Settings settings;
 
 	public DBHelper(Context context)
     {
         super(context, "db", null, 2);
+		this.context = context;
+
+		books = new Books(this);
+		pages = new Pages(this);
+		settings = new Settings(this);
     }
+
+	public Context getContext()
+	{
+		return context;
+	}
 
 	@Override
     public void onCreate(SQLiteDatabase db)
@@ -71,26 +82,24 @@ public class DBHelper extends SQLiteOpenHelper
 		pages.savePager(book.getId(), pager);
 	}
 
-	public void setSetting(String name, Object value)
+	public void setSetting(Param param)
 	{
-		settings.set(name, value);
+		settings.set(param);
 	}
 
-	public String getSetting(String name)
+	public void setSettings(Param[] params)
 	{
-		return settings.get(name);
+		settings.set(params);
 	}
 
-	public Integer getSettingInt(String name)
+	public void getSetting(Param param)
 	{
-		try
-		{
-			return Integer.valueOf(getSetting(name));
-		}
-		catch (NumberFormatException e)
-		{
-			return null;
-		}
+		settings.get(param);
+	}
+
+	public void getSettings(Param[] params)
+	{
+		settings.get(params);
 	}
 
 	public File getLastFile()

@@ -1,9 +1,9 @@
 package ru.net.serbis.reader.data;
 
 import android.content.*;
-import android.widget.*;
 import java.io.*;
 import ru.net.serbis.reader.*;
+import ru.net.serbis.reader.db.*;
 
 public class Book
 {
@@ -21,12 +21,12 @@ public class Book
 	
 	public Book(Context context)
 	{
-		setCharset(Constants.WINDOWS_1251);
+		DBHelper db = new DBHelper(context);
+		db.getSettings(Constants.PARAMS);
 		
-		TextView text = new TextView(context);
-		setFontName(new Font(text.getTypeface()).getName());
-		
-		setFontSize((int) (text.getTextSize() / context.getResources().getDisplayMetrics().scaledDensity));
+		setCharset(Constants.CHARSET.getValue());
+		setFontName(Constants.FONT_NAME.getValue());
+		setFontSize(Constants.FONT_SIZE.getIntValue());
 	}
 
 	public void setId(long id)

@@ -41,11 +41,11 @@ public class Main extends Activity
 			loader.setLoading(false);
 		}
 
-		UIUtils.getInstance().hideItems(this, R.id.progress);
-		UIUtils.getInstance().hideItems(this, R.id.load);
-		UIUtils.getInstance().showItems(this, R.id.buttons);
-		UIUtils.getInstance().getText(this).setText(null);
-		UIUtils.getInstance().getState(this).setText(null);
+		UIUtils.hideItems(this, R.id.progress);
+		UIUtils.hideItems(this, R.id.load);
+		UIUtils.showItems(this, R.id.buttons);
+		UIUtils.getText(this).setText(null);
+		UIUtils.getState(this).setText(null);
 	}
 
 	@Override
@@ -87,6 +87,10 @@ public class Main extends Activity
     {
 		switch (id)
 		{
+			case R.id.default_settings:
+				new SettingsEditor(this);
+				return true;
+				
 			case R.id.open_book:
 				openBook();
 				return true;
@@ -118,7 +122,7 @@ public class Main extends Activity
 		}
         return false;
     }
-
+	
 	private void openBook()
 	{
 		new BookChooser(this)
@@ -170,7 +174,7 @@ public class Main extends Activity
 		if (isReady())
 		{
 			loader.previous();
-			UIUtils.getInstance().openPage(this, loader);
+			UIUtils.openPage(this, loader);
 		}
 	}
 
@@ -179,13 +183,13 @@ public class Main extends Activity
 		if (isReady())
 		{
 			loader.next();
-			UIUtils.getInstance().openPage(this, loader);
+			UIUtils.openPage(this, loader);
 		}
 	}
 
 	private void initNextPage()
 	{
-		Button button = UIUtils.getInstance().findView(this, R.id.next_page);
+		Button button = UIUtils.findView(this, R.id.next_page);
 		button.setOnClickListener(
 			new View.OnClickListener()
 			{
@@ -199,7 +203,7 @@ public class Main extends Activity
 
 	private void initPreviousPage()
 	{
-		Button button = UIUtils.getInstance().findView(this, R.id.previous_page);
+		Button button = UIUtils.findView(this, R.id.previous_page);
 		button.setOnClickListener(
 			new View.OnClickListener()
 			{
@@ -220,7 +224,7 @@ public class Main extends Activity
 				if (page != loader.getPageNum())
 				{
 					loader.setPageNum(page);
-					UIUtils.getInstance().openPage(Main.this, loader);
+					UIUtils.openPage(Main.this, loader);
 				}
 			}
 		};

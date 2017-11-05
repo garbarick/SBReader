@@ -27,7 +27,7 @@ public abstract class Loader
 		this.file = file;
 		db = new DBHelper(context);
 		
-		TextView text = UIUtils.getInstance().getText(context);
+		TextView text = UIUtils.getText(context);
 		this.width = text.getWidth();
 		this.height = text.getHeight();
 	}
@@ -59,8 +59,14 @@ public abstract class Loader
 		}
 		if (book != null)
 		{
-			db.setSetting(Constants.LAST_BOOK, book.getId());
+			saveLast();
 		}
+	}
+
+	private void saveLast()
+	{
+		Constants.LAST_BOOK.setValue(book.getId());
+		db.setSetting(Constants.LAST_BOOK);
 	}
 
 	protected void collectPagesFromDB(LoadTask task)
@@ -108,7 +114,7 @@ public abstract class Loader
 		if (loadPages(task))
 		{
 			saveBook();
-			db.setSetting(Constants.LAST_BOOK, book.getId());
+			saveLast();
 		}
 	}
 

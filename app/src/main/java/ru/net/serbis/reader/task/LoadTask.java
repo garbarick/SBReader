@@ -40,24 +40,24 @@ public class LoadTask extends AsyncTask<Void, Void, Void>
 	@Override
 	protected void onPreExecute()
 	{
-		UIUtils.getInstance().hideItems(activity, R.id.buttons);
-		UIUtils.getInstance().showItems(activity, R.id.progress);
-		UIUtils.getInstance().showItems(activity, R.id.load);
+		UIUtils.hideItems(activity, R.id.buttons);
+		UIUtils.showItems(activity, R.id.progress);
+		UIUtils.showItems(activity, R.id.load);
 	}
 
 	@Override
 	protected void onPostExecute(Void result)
 	{
 		openFirst();
-		UIUtils.getInstance().hideItems(activity, R.id.load);
-		UIUtils.getInstance().updateState(activity, loader);
+		UIUtils.hideItems(activity, R.id.load);
+		UIUtils.updateState(activity, loader);
 		loader.setLoading(false);
 	}
 
 	@Override
 	protected void onProgressUpdate(Void... values)
 	{
-		UIUtils.getInstance().updateState(activity, loader);
+		UIUtils.updateState(activity, loader);
 		if (loader.getPageCount() == loader.getPageNum())
 		{
 			openFirst();
@@ -77,8 +77,8 @@ public class LoadTask extends AsyncTask<Void, Void, Void>
 		}
 		firstOpened = true;
 		
-		UIUtils.getInstance().hideItems(activity, R.id.progress);
-		UIUtils.getInstance().showItems(activity, R.id.buttons);
-		UIUtils.getInstance().openPage(activity, loader);
+		UIUtils.hideItems(activity, R.id.progress);
+		UIUtils.showItems(activity, R.id.buttons);
+		UIUtils.openPage(activity, loader);
 	}
 }

@@ -151,7 +151,7 @@ public class Books extends Table
 			"settings s, books b",
 			new String[]{"b.path"}, 
 			"s.name = ? and b.id = s.value",
-			new String[]{Constants.LAST_BOOK}, 
+			new String[]{Constants.LAST_BOOK.getName()}, 
 			null, 
 			null, 
 			null);

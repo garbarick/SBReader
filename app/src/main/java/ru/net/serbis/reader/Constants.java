@@ -2,6 +2,7 @@ package ru.net.serbis.reader;
 
 import android.graphics.*;
 import java.util.*;
+import ru.net.serbis.reader.data.*;
 
 public interface Constants
 {
@@ -33,5 +34,15 @@ public interface Constants
 	int LOAD = 0;
 	int RELOAD = 1;
 	
-	String LAST_BOOK = "lastBook";
+	Param LAST_BOOK = new Param("lastBook");
+	Param CHARSET = new Param("charset", R.string.charset, WINDOWS_1251);
+	Param FONT_NAME = new Param("fontName", R.string.font_name);
+	Param FONT_SIZE = new Param("fontSize", R.string.font_size);
+	
+	Param[] PARAMS = new Param[]
+	{
+		CHARSET,
+		FONT_NAME,
+		FONT_SIZE
+	};
 }

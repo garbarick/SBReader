@@ -3,6 +3,7 @@
 
     <string name="app_name">SBReader</string>
     
+	<string name="default_settings">Default Settings</string>
 	<string name="open_book">Open Book</string>
 	<string name="open_file">Open File</string>
 	<string name="close_file">Close File</string>

@@ -3,13 +3,21 @@ package ru.net.serbis.reader.db.table;
 import android.content.*;
 import android.database.*;
 import android.database.sqlite.*;
+import android.widget.*;
+import ru.net.serbis.reader.*;
+import ru.net.serbis.reader.data.*;
 import ru.net.serbis.reader.db.*;
+import android.text.*;
 
 public class Settings extends Table
 {
 	public Settings(DBHelper helper)
 	{
 		super(helper);
+	
+		TextView text = new TextView(helper.getContext());
+		Constants.FONT_NAME.setValue(new Font(text.getTypeface()).getName());
+		Constants.FONT_SIZE.setValue((int) (text.getTextSize() / helper.getContext().getResources().getDisplayMetrics().scaledDensity));
 	}
 
 	@Override
@@ -22,62 +30,78 @@ public class Settings extends Table
 			")");
 	}
 	
-	public void set(final String name, final Object value)
+	public void set(Param param)
+	{
+		set(new Param[]{param});
+	}
+	
+	public void set(final Param[] params)
 	{
 		write(
 			new Action<Void>()
 			{
 				public Void call(SQLiteDatabase db)
 				{
-					set(db, name, value);
+					for(Param param : params)
+					{
+						set(db, param);
+					}
 					return null;
 				}
 			}
 		);
 	}
 
-	private void set(SQLiteDatabase db, String name, Object value)
+	private void set(SQLiteDatabase db, Param param)
 	{
-		db.delete("settings", "name = ?", new String[]{name});
+		db.delete("settings", "name = ?", new String[]{param.getName()});
 
-		if (value == null)
+		if (param.getValue() == null)
 		{
 			return;
 		}
 		
 		ContentValues values = new ContentValues();
-		values.put("name", name);
-		values.put("value", value.toString());
+		values.put("name", param.getName());
+		values.put("value", param.getValue());
 		db.insert("settings", null, values);
 	}
 	
-	public String get(final String name)
+	public void get(final Param param)
 	{
-		return read(
-			new Action<String>()
+		get(new Param[]{param});
+	}
+	
+	public void get(final Param[] params)
+	{
+		read(
+			new Action<Void>()
 			{
-				public String call(SQLiteDatabase db)
+				public Void call(SQLiteDatabase db)
 				{
-					return get(db, name);
+					for(Param param : params)
+					{
+						get(db, param);
+					}
+					return null;
 				}
 			}
 		);
 	}
 	
-	private String get(SQLiteDatabase db, String name)
+	private void get(SQLiteDatabase db, Param param)
 	{
 		Cursor cursor = db.query(
 		"settings",
 			new String[]{"value"}, 
 			"name = ?",
-			new String[]{name}, 
+			new String[]{param.getName()}, 
 			null, 
 			null, 
 			null);
 		if (cursor.moveToFirst())
 		{
-			return cursor.getString(0);
+			param.setValue(cursor.getString(0));
 		}
-		return null;
 	}
 }
