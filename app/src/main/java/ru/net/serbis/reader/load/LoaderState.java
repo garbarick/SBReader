@@ -1,7 +1,6 @@
 package ru.net.serbis.reader.load;
 
 import android.content.*;
-import android.util.*;
 import android.view.*;
 import android.widget.*;
 import java.util.regex.*;
@@ -18,8 +17,8 @@ public class LoaderState
 	private StringBuilder end = new StringBuilder();
 	private TextView textView;
 	private int width;
-	private int height;
-	private int buffSize;
+	private int maxLineCount;
+	private int lineCount;
 	
 	public LoaderState(Context context, Book book, int width, int height)
 	{
@@ -29,8 +28,7 @@ public class LoaderState
 		textView.setTextSize(book.getFontSize());
 		
 		this.width = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
-		this.height = height;
-		buffSize = BUF_SIZE;
+		maxLineCount = height/textView.getLineHeight();
 	}
 
 	public void setNext(boolean next)
@@ -71,19 +69,13 @@ public class LoaderState
 	public void initPosition()
 	{
 		this.position += data.length();
-		buffSize = data.length();
 	}
 	
 	private void measure()
 	{
 		textView.setText(data);
 		textView.measure(width, 0);
-	}
-	
-	public boolean checkSize()
-	{
-		measure();
-		return textView.getMeasuredHeight() <= height;
+		lineCount = textView.getLineCount();
 	}
 	
 	public void findLastSpace(boolean split)
@@ -103,12 +95,23 @@ public class LoaderState
 			return;
 		}
 
+		splitData(pos);
+	}
+	
+	public int getPageLen()
+	{
+		return textView.getLayout().getLineEnd(maxLineCount - 1);
+	}
+	
+	public boolean isLinesFull()
+	{
+		measure();
+		return lineCount >= maxLineCount;
+	}
+	
+	public void splitData(int pos)
+	{
 		end.insert(0, data.substring(pos));
 		data.setLength(pos);
-	}
-
-	public int getBuffSize()
-	{
-		return buffSize;
 	}
 }

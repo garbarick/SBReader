@@ -152,16 +152,10 @@ public abstract class Loader
 				state.setNext(false);
 			}
 
-			while (!state.checkSize())
+			if (state.isLinesFull())
 			{
+				state.splitData(state.getPageLen());
 				state.setNext(true);
-				state.findLastSpace(true);
-
-				if (task.isCancelled())
-				{
-					canceled = true;
-					break;
-				}
 			}
 
 			if (task.isCancelled())

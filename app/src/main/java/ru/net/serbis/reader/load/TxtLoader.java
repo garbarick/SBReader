@@ -22,7 +22,7 @@ public class TxtLoader extends Loader
 		try
 		{
 			reader = getReader();
-			CharBuffer buffer = CharBuffer.allocate(state.getBuffSize());
+			CharBuffer buffer = CharBuffer.allocate(state.BUF_SIZE);
 
 			while (reader.read(buffer) >= 0)
 			{
@@ -42,11 +42,6 @@ public class TxtLoader extends Loader
 				{
 					canceled = true;
 					break;
-				}
-
-				if (buffer.capacity() != state.getBuffSize())
-				{
-					buffer = CharBuffer.allocate(state.getBuffSize());
 				}
 			}
 		}
