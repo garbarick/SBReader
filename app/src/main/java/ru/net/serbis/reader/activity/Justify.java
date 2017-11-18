@@ -1,9 +1,10 @@
 package ru.net.serbis.reader.activity;
 
+import android.graphics.drawable.*;
 import android.text.*;
+import android.text.style.*;
 import android.widget.*;
 import java.util.*;
-import ru.net.serbis.reader.*;
 import java.util.regex.*;
 
 public class Justify
@@ -29,8 +30,7 @@ public class Justify
 	{
 		String text = textView.getText().toString();
 		TextPaint paint = textView.getPaint();
-		float spaceWidth = paint.measureText(SPACE);
-		StringBuilder buffer = new StringBuilder();
+		SpannableStringBuilder buffer = new SpannableStringBuilder();
 
 		int lineCount = textView.getLineCount();
 		int width = textView.getWidth();
@@ -41,27 +41,42 @@ public class Justify
 			int end = textView.getLayout().getLineEnd(lineNum);
 
 			String line = text.substring(start, end);
-			buffer.append(correctLine(line, width, spaceWidth, paint));
+			buffer.append(correctLine(line, width, paint));
 		}
 		textView.setText(buffer);
 	}
 
-	private String correctLine(String line, int width, float spaceWidth, TextPaint paint)
+	private SpannableString correctLine(String line, int width, TextPaint paint)
 	{
 		List<String> words = getWords(line);
 		if (words.size() > 1)
 		{
 			String joined = TextUtils.join(EMPTY, words);
+			int spaceCount = words.size() - 1;
+			
 			float withOutSpace = paint.measureText(joined);
-			int spaceCount = (int) ((width - withOutSpace) / spaceWidth);
+			float addWidth = width - withOutSpace ;
 
-			if (spaceCount >= words.size() - 1)
+			int stepWidth = (int) addWidth / spaceCount;
+
+			SpannableString result = new SpannableString(TextUtils.join(SPACE, words));
+			int shift = 0;
+			for (int i = 0; i < spaceCount; i++)
 			{
-				addSpaces(spaceCount, words, width, paint);
-				return TextUtils.join(EMPTY, words);
+				int spanWidth = i == spaceCount - 1 ? (int)addWidth : stepWidth;
+				Drawable drawable = new ColorDrawable();
+				drawable.setBounds(0, 0, spanWidth, 0);
+
+				ImageSpan span = new ImageSpan(drawable);
+
+				shift += words.get(i).length();
+				result.setSpan(span, shift, shift + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				shift ++;
+				addWidth -= stepWidth;
 			}
+			return result;
 		}
-		return line;
+		return new SpannableString(line);
 	}
 
 	private List<String> getWords(String text)
@@ -87,30 +102,5 @@ public class Justify
 			result.add(group);
 		}
 		return result;
-	}
-
-	private void addSpaces(int spaceCount, List<String> words, int width, TextPaint paint)
-	{
-		while (spaceCount > 0)
-		{
-			for (int i = 0; i < words.size() - 1; i++)
-			{
-				String word = words.remove(i);
-				
-				String joined = TextUtils.join(EMPTY, words) + word + SPACE;
-				float newWidth = paint.measureText(joined);
-				if (newWidth > width)
-				{
-					words.add(i, word);
-					return;
-				}
-				words.add(i, word + SPACE);
-				spaceCount --;
-				if (spaceCount <= 0)
-				{
-					return;
-				}
-			}
-		}
 	}
 }

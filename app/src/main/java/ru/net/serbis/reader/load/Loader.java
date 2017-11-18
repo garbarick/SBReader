@@ -12,7 +12,7 @@ import ru.net.serbis.reader.task.*;
 
 public abstract class Loader
 {
-	protected Context context;
+	protected Activity context;
 	protected File file;
 	protected Pager pager;
 	protected DBHelper db;
@@ -26,7 +26,10 @@ public abstract class Loader
 		this.context = context;
 		this.file = file;
 		db = new DBHelper(context);
-		
+	}
+	
+	public void initSize()
+	{
 		TextView text = UIUtils.getText(context);
 		this.width = text.getWidth();
 		this.height = text.getHeight();

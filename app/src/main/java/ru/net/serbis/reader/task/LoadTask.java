@@ -18,6 +18,7 @@ public class LoadTask extends AsyncTask<Void, Void, Void>
 		this.activity = activity;
 		this.loader = loader;
 		this.type = type;
+		loader.initSize();
 	}
 	
 	@Override
