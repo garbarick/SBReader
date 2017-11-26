@@ -10,6 +10,7 @@ public class ZipTxtLoader extends TxtLoader
 {
 	protected ZipFile bookZipFile;
 	protected ZipEntry bookEntry;
+	protected long lastPosition;
 	
 	public ZipTxtLoader(Activity context, File file)
 	{
@@ -25,8 +26,7 @@ public class ZipTxtLoader extends TxtLoader
 			{
 				public Boolean open(ZipFile zipFile, ZipEntry entry)
 				{
-					bookZipFile = zipFile;
-					bookEntry = entry;
+					initFile(zipFile, entry);
 					return loadPagesBase(task);
 				}
 				
@@ -36,6 +36,19 @@ public class ZipTxtLoader extends TxtLoader
 				}
 			}
 		);
+	}
+	
+	private void initFile(ZipFile zipFile, ZipEntry entry)
+	{
+		bookZipFile = zipFile;
+		bookEntry = entry;
+		lastPosition = entry.getSize();
+	}
+	
+	@Override
+	protected long getLastPosition()
+	{
+		return lastPosition;
 	}
 	
 	protected boolean loadPagesBase(LoadTask task)
@@ -52,8 +65,7 @@ public class ZipTxtLoader extends TxtLoader
 			{
 				public String open(ZipFile zipFile, ZipEntry entry)
 				{
-					bookZipFile = zipFile;
-					bookEntry = entry;
+					initFile(zipFile, entry);
 					return getPageBase();
 				}
 

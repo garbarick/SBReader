@@ -125,4 +125,9 @@ public class DBHelper extends SQLiteOpenHelper
 		books.clearBookFiles(lost);
 		return result;
 	}
+	
+	public void excludeBook(Book book)
+	{
+		books.excludeBook(book);
+	}
 }

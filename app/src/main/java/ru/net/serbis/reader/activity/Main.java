@@ -64,7 +64,7 @@ public class Main extends Activity
 		
 		menu.findItem(R.id.open_book).setEnabled(loading);
 		menu.findItem(R.id.open_file).setEnabled(loading);
-		menu.findItem(R.id.close_file).setEnabled(ready);
+		menu.findItem(R.id.close_book).setEnabled(ready);
 		menu.findItem(R.id.open_page).setEnabled(ready);
 		menu.findItem(R.id.charser).setEnabled(ready);
 		menu.findItem(R.id.font_name).setEnabled(ready);
@@ -99,8 +99,9 @@ public class Main extends Activity
 				openFile();
 				return true;
 
-			case R.id.close_file:
+			case R.id.close_book:
 				cancel();
+				db.excludeBook(loader.getBook());
 				loader = null;
 				return true;
 

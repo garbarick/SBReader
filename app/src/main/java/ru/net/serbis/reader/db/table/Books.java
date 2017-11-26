@@ -229,4 +229,23 @@ public class Books extends Table
 			db.delete("books", "path = ?", new String[]{file.getAbsolutePath()});
 		}
 	}
+	
+	public void excludeBook(final Book book)
+	{
+		write(
+			new Action<Void>()
+			{
+				public Void call(SQLiteDatabase db)
+				{
+					excludeBook(db, book);
+					return null;
+				}
+			}
+		);
+	}
+	
+	private void excludeBook(SQLiteDatabase db, Book book)
+	{
+		db.delete("books", "id = ?", new String[]{String.valueOf(book.getId())});
+	}
 }

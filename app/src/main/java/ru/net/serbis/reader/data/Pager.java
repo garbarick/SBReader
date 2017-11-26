@@ -40,7 +40,12 @@ public class Pager
 	
 	public int getPageSize()
 	{
-		return (int)(pages.get(page) - getPageSkip());
+		int size = (int)(pages.get(page) - getPageSkip());
+		if (size < 0)
+		{
+			return 0;
+		}
+		return size;
 	}
 	
 	public void next()

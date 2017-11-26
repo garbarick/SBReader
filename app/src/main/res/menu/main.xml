@@ -10,8 +10,8 @@
         android:id="@+id/open_file"
         android:title="@string/open_file"/>
     <item
-        android:id="@+id/close_file"
-        android:title="@string/close_file"/>
+        android:id="@+id/close_book"
+        android:title="@string/close_book"/>
 	<item
         android:id="@+id/open_page"
         android:title="@string/open_page"/>

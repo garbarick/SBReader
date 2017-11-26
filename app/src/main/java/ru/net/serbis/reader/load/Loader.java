@@ -27,7 +27,7 @@ public abstract class Loader
 		this.file = file;
 		db = new DBHelper(context);
 	}
-	
+
 	public void initSize()
 	{
 		TextView text = UIUtils.getText(context);
@@ -39,7 +39,7 @@ public abstract class Loader
 	{
 		return loading;
 	}
-	
+
 	public void setLoading(boolean loading)
 	{
 		this.loading = loading;
@@ -74,33 +74,17 @@ public abstract class Loader
 
 	protected void collectPagesFromDB(LoadTask task)
 	{
-		boolean reload = file.length() != book.getSize();
-	    if (!reload)
+		pager = db.getPages(book);
+		int page = 0;
+		for (long position : pager.getPages())
 		{
-			pager = db.getPages(book);
-			reload = file.length() != pager.getLastPosition();
-		}
-		else
-		{
-			pager = new Pager();
-		}
-		if (reload)
-		{
-			collectPages(task);
-		}
-		else
-		{
-			int page = 0;
-			for (long position : pager.getPages())
+			if (position > book.getPosition())
 			{
-				if (position > book.getPosition())
-				{
-					break;
-				}
-				page ++;
+				break;
 			}
-			pager.setPage(page);
+			page ++;
 		}
+		pager.setPage(page);
 	}
 
 	protected void initBook()
@@ -123,9 +107,11 @@ public abstract class Loader
 
 	protected abstract boolean loadPages(LoadTask task);
 
+	protected abstract long getLastPosition();
+	
 	protected void finalBook()
 	{
-		pager.addPage(file.length());
+		pager.addPage(getLastPosition());
 		if (pager.getPage() == -1)
 		{
 			pager.setPage(getPageCount() - 1);
@@ -146,7 +132,11 @@ public abstract class Loader
 				{
 					pager.setPage(getPageCount());
 				}
-				pager.addPage(state.getPosition());
+				
+				if (state.getPosition() < getLastPosition())
+				{
+					pager.addPage(state.getPosition());
+				}
 				task.progress();
 
 				state.clearData();

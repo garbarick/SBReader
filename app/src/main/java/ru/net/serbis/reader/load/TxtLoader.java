@@ -56,6 +56,12 @@ public class TxtLoader extends Loader
 		}
 		return !canceled;
 	}
+
+	@Override
+	protected long getLastPosition()
+	{
+		return file.length();
+	}
 	
 	protected Reader getReader() throws Exception
 	{
@@ -66,6 +72,10 @@ public class TxtLoader extends Loader
 	public String getPage()
 	{
 		long skip = pager.getPageSkip();
+		if (skip > getLastPosition())
+		{
+			return null;
+		}
 
 		book.setPosition(skip);
 		updateBookPosition();
