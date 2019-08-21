@@ -19,6 +19,14 @@ public class Books extends Table
 	@Override
 	protected void initInternal(SQLiteDatabase db)
 	{
+		if (!tableExist(db, "books"))
+		{
+			createTable(db);
+		}
+	}
+
+	private void createTable(SQLiteDatabase db) throws SQLException
+	{
 		db.execSQL(
 			"create table books(" +
 			" id integer primary key autoincrement," +

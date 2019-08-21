@@ -3,25 +3,26 @@ package ru.net.serbis.reader.db.table;
 import android.content.*;
 import android.database.*;
 import android.database.sqlite.*;
-import android.widget.*;
-import ru.net.serbis.reader.*;
 import ru.net.serbis.reader.data.*;
 import ru.net.serbis.reader.db.*;
-import android.text.*;
 
 public class Settings extends Table
 {
 	public Settings(DBHelper helper)
 	{
 		super(helper);
-	
-		TextView text = new TextView(helper.getContext());
-		Constants.FONT_NAME.setValue(new Font(text.getTypeface()).getName());
-		Constants.FONT_SIZE.setValue((int) (text.getTextSize() / helper.getContext().getResources().getDisplayMetrics().scaledDensity));
 	}
 
 	@Override
 	protected void initInternal(SQLiteDatabase db)
+	{
+		if (!tableExist(db, "settings"))
+		{
+			createTable(db);
+		}
+	}
+
+	private void createTable(SQLiteDatabase db) throws SQLException
 	{
 		db.execSQL(
 			"create table settings(" +

@@ -1,5 +1,7 @@
 package ru.net.serbis.reader.data;
 
+import android.content.*;
+
 public class Param
 {
 	private String name;
@@ -39,6 +41,11 @@ public class Param
 	}
 
 	public String getValue()
+	{
+		return value;
+	}
+	
+	public String getValue(Context context)
 	{
 		return value;
 	}

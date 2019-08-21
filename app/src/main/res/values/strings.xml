@@ -14,4 +14,9 @@
 	<string name="font_size">Font Size</string>
 	<string name="unsupported_format">Unsupportef Format</string>
 	
+	<string name="orientation">Orientation</string>
+	<string name="bydefault">Default</string>
+	<string name="portrait">Portrait</string>
+	<string name="landscape">Landscape</string>
+	
 </resources>

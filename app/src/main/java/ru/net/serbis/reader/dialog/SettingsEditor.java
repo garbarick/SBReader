@@ -2,18 +2,19 @@ package ru.net.serbis.reader.dialog;
 
 import android.app.*;
 import android.content.*;
+import android.view.*;
 import android.widget.*;
 import ru.net.serbis.reader.*;
-import android.view.*;
 import ru.net.serbis.reader.adapter.*;
-import ru.net.serbis.reader.db.*;
 import ru.net.serbis.reader.data.*;
+import ru.net.serbis.reader.db.*;
 
-public class SettingsEditor extends AlertDialog.Builder implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener
+public abstract class SettingsEditor extends AlertDialog.Builder implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener
 {
 	private AlertDialog dialog;
 	private DBHelper db;
 	private ParamsAdapter adapter;
+	private boolean orientationChange;
 	
 	public SettingsEditor(Context context)
 	{
@@ -53,6 +54,10 @@ public class SettingsEditor extends AlertDialog.Builder implements AdapterView.O
 		{
 			selectFontSize(param);
 		}
+		else if (Constants.ORIENTATION == param)
+		{
+			selectOrientation(param);
+		}
 	}
 	
 	private void selectCharset(final Param param)
@@ -90,11 +95,27 @@ public class SettingsEditor extends AlertDialog.Builder implements AdapterView.O
 			}
 		};
 	}
+	
+	private void selectOrientation(final Param param)
+	{
+		new Orientations(getContext(), param.getIntValue())
+		{
+			public void onOk(int orientation)
+			{
+				param.setValue(orientation);
+				adapter.notifyDataSetChanged();
+				orientationChange = true;
+			}
+		};
+	}
 
 	@Override
 	public void onClick(DialogInterface dialog, int id)
 	{
 		db.setSettings(Constants.PARAMS);
+		change(orientationChange);
 		dialog.dismiss();
 	}
+	
+	public abstract void change(boolean orientationChange);
 }

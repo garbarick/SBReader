@@ -28,7 +28,7 @@ public class ParamsAdapter extends ArrayAdapter<Param>
 		name.setText(param.getNameId());
 		
 		TextView value = UIUtils.findView(view, R.id.value);
-		value.setText(param.getValue());
+		value.setText(param.getValue(getContext()));
 		
 		return view;
 	}

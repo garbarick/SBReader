@@ -15,6 +15,14 @@ public class Pages extends Table
 	@Override
 	protected void initInternal(SQLiteDatabase db)
 	{
+		if (!tableExist(db, "pages"))
+		{
+			createTable(db);
+		}
+	}
+
+	private void createTable(SQLiteDatabase db) throws SQLException
+	{
 		db.execSQL(
 			"create table pages(" +
 			" book_id integer," +

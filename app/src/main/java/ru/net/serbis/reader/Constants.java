@@ -1,5 +1,6 @@
 package ru.net.serbis.reader;
 
+import android.content.pm.*;
 import android.graphics.*;
 import java.util.*;
 import ru.net.serbis.reader.data.*;
@@ -38,11 +39,23 @@ public interface Constants
 	Param CHARSET = new Param("charset", R.string.charset, WINDOWS_1251);
 	Param FONT_NAME = new Param("fontName", R.string.font_name);
 	Param FONT_SIZE = new Param("fontSize", R.string.font_size);
+	Param ORIENTATION = new OrientationParam("orientation", R.string.orientation, 0);
 	
 	Param[] PARAMS = new Param[]
 	{
 		CHARSET,
 		FONT_NAME,
-		FONT_SIZE
+		FONT_SIZE,
+		ORIENTATION
 	};
+	
+	List<Orientation> ORIENTATIONS = Arrays.asList
+	(
+		new Orientation[]
+		{
+			new Orientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED, R.string.bydefault),
+			new Orientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, R.string.portrait),
+			new Orientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE, R.string.landscape)
+		}
+	);
 }

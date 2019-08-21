@@ -1,5 +1,6 @@
 package ru.net.serbis.reader.db.table;
 
+import android.database.*;
 import android.database.sqlite.*;
 import ru.net.serbis.reader.*;
 import ru.net.serbis.reader.db.*;
@@ -63,13 +64,30 @@ public abstract class Table
 		}
 	}
 
-	public <T> T read(Action<T> action)
+	protected <T> T read(Action<T> action)
 	{
 		return doAction(action, false);
 	}
 
-	public <T> T write(Action<T> action)
+	protected <T> T write(Action<T> action)
 	{
 		return doAction(action, true);
+	}
+	
+	private boolean exist(SQLiteDatabase db, String query, String... args)
+    {
+		Cursor cursor = db.rawQuery(query, args);
+		return cursor.moveToFirst();
+	}
+	
+	protected boolean tableExist(SQLiteDatabase db, String table)
+	{
+		return exist(
+			db,
+			"select 1" +
+			"  from sqlite_master" +
+			" where type = 'table'" +
+			"   and name = ?",
+			table);
 	}
 }

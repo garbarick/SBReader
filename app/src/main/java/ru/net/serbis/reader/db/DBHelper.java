@@ -9,25 +9,14 @@ import ru.net.serbis.reader.db.table.*;
 
 public class DBHelper extends SQLiteOpenHelper
 {
-	private Context context;
-	private Books books;
-	private Pages pages;
-	private Settings settings;
+	private Books books = new Books(this);
+	private Pages pages = new Pages(this);
+	private Settings settings = new Settings(this);
 
 	public DBHelper(Context context)
     {
         super(context, "db", null, 2);
-		this.context = context;
-
-		books = new Books(this);
-		pages = new Pages(this);
-		settings = new Settings(this);
     }
-
-	public Context getContext()
-	{
-		return context;
-	}
 
 	@Override
     public void onCreate(SQLiteDatabase db)

@@ -1,6 +1,7 @@
 package ru.net.serbis.reader.activity;
 
 import android.app.*;
+import android.content.*;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
@@ -10,6 +11,8 @@ import ru.net.serbis.reader.db.*;
 import ru.net.serbis.reader.dialog.*;
 import ru.net.serbis.reader.load.*;
 import ru.net.serbis.reader.task.*;
+
+import ru.net.serbis.reader.load.Loader;
 
 public class Main extends Activity 
 {
@@ -23,6 +26,11 @@ public class Main extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 		db = new DBHelper(this);
+		db.getSettings(Constants.PARAMS);
+		
+		setRequestedOrientation(
+			Constants.ORIENTATIONS.get(
+				Constants.ORIENTATION.getIntValue()).getValue());
 		
 		initNextPage();
 		initPreviousPage();
@@ -88,7 +96,7 @@ public class Main extends Activity
 		switch (id)
 		{
 			case R.id.default_settings:
-				new SettingsEditor(this);
+				openSettings();
 				return true;
 				
 			case R.id.open_book:
@@ -123,6 +131,21 @@ public class Main extends Activity
 		}
         return false;
     }
+	
+	private void openSettings()
+	{
+		new SettingsEditor(this)
+		{
+			@Override
+			public void change(boolean orientationChange)
+			{
+				if (orientationChange)
+				{
+					recreate();
+				}
+			}
+		};
+	}
 	
 	private void openBook()
 	{
