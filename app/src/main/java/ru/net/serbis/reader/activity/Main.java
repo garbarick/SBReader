@@ -1,7 +1,6 @@
 package ru.net.serbis.reader.activity;
 
 import android.app.*;
-import android.content.*;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
@@ -11,8 +10,6 @@ import ru.net.serbis.reader.db.*;
 import ru.net.serbis.reader.dialog.*;
 import ru.net.serbis.reader.load.*;
 import ru.net.serbis.reader.task.*;
-
-import ru.net.serbis.reader.load.Loader;
 
 public class Main extends Activity 
 {
