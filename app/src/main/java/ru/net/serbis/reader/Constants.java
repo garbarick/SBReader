@@ -3,7 +3,9 @@ package ru.net.serbis.reader;
 import android.content.pm.*;
 import android.graphics.*;
 import java.util.*;
+import ru.net.serbis.reader.*;
 import ru.net.serbis.reader.data.*;
+import android.util.*;
 
 public interface Constants
 {
@@ -21,24 +23,21 @@ public interface Constants
 	
 	String WINDOWS_1251 = "windows-1251";
 	String SYSTEM_FONTS = "/system/fonts";
+    String DEFAULT = "Default";
 	
-	Map<String, Typeface> DEFAULTS = new LinkedHashMap<String, Typeface>()
-	{
-		{
-			put("Default", Typeface.DEFAULT);
-			put("Monospace", Typeface.MONOSPACE);
-			put("Sans Serif", Typeface.SANS_SERIF);
-			put("Serif", Typeface.SERIF);
-		}
-	};
+	Map<String, Typeface> DEFAULTS = Utils.getMap(
+        new Pair(DEFAULT, Typeface.DEFAULT),
+	    new Pair("Monospace", Typeface.MONOSPACE),
+	    new Pair("Sans Serif", Typeface.SANS_SERIF),
+		new Pair("Serif", Typeface.SERIF));
 	
 	int LOAD = 0;
 	int RELOAD = 1;
 	
 	Param LAST_BOOK = new Param("lastBook");
 	Param CHARSET = new Param("charset", R.string.charset, WINDOWS_1251);
-	Param FONT_NAME = new Param("fontName", R.string.font_name);
-	Param FONT_SIZE = new Param("fontSize", R.string.font_size);
+	Param FONT_NAME = new Param("fontName", R.string.font_name, DEFAULT);
+	Param FONT_SIZE = new Param("fontSize", R.string.font_size, "24");
 	Param ORIENTATION = new OrientationParam("orientation", R.string.orientation, 0);
 	
 	Param[] PARAMS = new Param[]

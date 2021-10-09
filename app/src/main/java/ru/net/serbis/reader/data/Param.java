@@ -52,6 +52,10 @@ public class Param
 	
 	public int getIntValue()
 	{
+        if (value == null)
+        {
+            return 0;
+        }
 		return Integer.valueOf(value);
 	}
 }

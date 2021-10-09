@@ -1,5 +1,6 @@
 package ru.net.serbis.reader;
 
+import android.util.*;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
@@ -62,4 +63,14 @@ public class Utils
 		}
 		return entryOpen.getDefault();
 	}
+
+    public static <K, V> Map<K, V> getMap(Pair<K, V>... pairs)
+    {
+        Map<K, V> result = new LinkedHashMap<K, V>();
+        for(Pair<K, V> pair : pairs)
+        {
+            result.put(pair.first, pair.second);
+        }
+        return result;
+    }
 }
