@@ -22,7 +22,7 @@ public abstract class Table
 		}
 		catch (Throwable e)
 		{
-			Log.info(this, "Error on init table", e);
+			Log.error(this, "Error on init table", e);
 		}
 	}
 
@@ -55,7 +55,7 @@ public abstract class Table
 		}
 		catch (Throwable e)
 		{
-			Log.info(this, e);
+			Log.error(this, e);
 			return null;
 		}
 		finally

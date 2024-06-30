@@ -47,7 +47,7 @@ public class TxtLoader extends Loader
 		}
 		catch (Throwable e)
 		{
-			Log.info(this, e);
+			Log.error(this, e);
 		}
 		finally
 		{
@@ -91,7 +91,7 @@ public class TxtLoader extends Loader
 		}
 		catch (Throwable e)
 		{
-			Log.info(this, e);
+			Log.error(this, e);
 		}
 		finally
 		{

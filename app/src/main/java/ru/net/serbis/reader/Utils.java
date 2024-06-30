@@ -55,7 +55,7 @@ public class Utils
 		}
 		catch (Throwable e)
 		{
-			Log.info(Utils.class, e);
+			Log.error(Utils.class, e);
 		}
 		finally
 		{
