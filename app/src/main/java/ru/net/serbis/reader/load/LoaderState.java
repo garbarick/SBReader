@@ -28,7 +28,7 @@ public class LoaderState
 		textView.setTextSize(book.getFontSize());
 		
 		this.width = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
-		maxLineCount = height/textView.getLineHeight();
+		maxLineCount = height/textView.getLineHeight() - 1;
 	}
 
 	public void setNext(boolean next)
