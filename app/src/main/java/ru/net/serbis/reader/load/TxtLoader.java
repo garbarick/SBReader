@@ -72,11 +72,12 @@ public class TxtLoader extends Loader
 	public String getPage()
 	{
 		long skip = pager.getPageSkip();
-		if (skip > getLastPosition())
+        long lastPos = getLastPosition();
+		if (skip > lastPos)
 		{
 			return null;
 		}
-
+        
 		book.setPosition(skip);
 		updateBookPosition();
 
@@ -85,8 +86,11 @@ public class TxtLoader extends Loader
 		try
 		{
 			reader = getReader();
-			while ((skip -= reader.skip(skip)) > 0)
-			{}
+            long readed = 0;
+			while (skip > 0 && (readed = reader.skip(skip)) > 0)
+			{
+                skip -= readed;
+            }
 			reader.read(buffer);
 		}
 		catch (Throwable e)
